@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
+import { Functions } from "../functions/Functions.js";
 
 const EncryptModal = () => {
   const [inputString, setInputString] = useState('');
 
+  const { execute_gateway_contract } =
+  Functions();
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // Add your encryption logic here
-    console.log('String to encrypt:', inputString);
+ execute_gateway_contract();
   };
 
   return (

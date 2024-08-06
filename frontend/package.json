@@ -3,18 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@cosmjs/crypto": "^0.32.3",
+    "@cosmjs/encoding": "^0.32.3",
     "@heroicons/react": "^2.1.5",
+    "@noble/hashes": "^1.4.0",
+    "@solar-republic/cosmos-grpc": "^0.17.1",
+    "@solar-republic/neutrino": "^1.5.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "cosmjs-types": "^0.9.0",
+    "crypto-browserify": "^3.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^4.0.3",
     "secretjs": "^1.12.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -38,6 +45,10 @@
     ]
   },
   "devDependencies": {
+    "@cosmjs/amino": "^0.32.3",
+    "@cosmjs/cosmwasm-stargate": "^0.32.3",
+    "@solar-republic/contractor": "^0.8.17",
+    "@types/node": "^20.14.13",
     "tailwindcss": "^3.4.3"
   }
 }

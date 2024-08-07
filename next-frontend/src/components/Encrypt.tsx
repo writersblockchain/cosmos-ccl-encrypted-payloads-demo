@@ -11,7 +11,7 @@ const EncryptModal = () => {
         e.preventDefault();
         // Add your encryption logic here
       
-        execute_gateway_contract();
+        execute_gateway_contract(inputString);
       };
 
   return (

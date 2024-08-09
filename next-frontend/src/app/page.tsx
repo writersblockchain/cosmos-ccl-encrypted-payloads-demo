@@ -1,19 +1,60 @@
 "use client";
 
 import { WalletIcon } from "@heroicons/react/24/outline";
-import { SecretjsContext } from "../utils/SecretContext";
+import { CosmosjsContext } from "../utils/CosmosContext";
 import { useContext } from "react";
 import EncryptModal from "@/components/Encrypt";
 import Image from "next/image";
+import { useEffect } from "react";
+import { SigningStargateClient } from "@cosmjs/stargate"
+import { Decimal } from "@cosmjs/math";
 
 export default function Home() {
-  const context = useContext(SecretjsContext);
+  const context = useContext(CosmosjsContext);
 
   if (!context) {
     return null; // Handle the case when context is null
   }
 
   const { connectWallet } = context;
+
+//   async function setupKeplr() {
+//     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+//     while (
+//       !(window as any).keplr ||
+//       !(window as any).getEnigmaUtils ||
+//       !(window as any).getOfflineSignerOnlyAmino
+//     ) {
+//       await sleep(50);
+//     }
+
+//     await (window as any).keplr.enable(process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID);
+//     (window as any).keplr.defaultOptions = {
+//       sign: {
+//         preferNoSetFee: false,
+//         disableBalanceCheck: true,
+//       },
+//     };
+
+//     const keplrOfflineSigner = (window as any).getOfflineSignerOnlyAmino(process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID);
+//     const accounts = await keplrOfflineSigner.getAccounts();
+// const keplrAddress = accounts[0].address;
+// console.log(keplrAddress)
+
+//     let consumerClient = await SigningStargateClient.connectWithSigner(
+//       process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ENDPOINT!, 
+//       keplrOfflineSigner,
+//       { gasPrice: { 
+//           denom:  process.env.NEXT_PUBLIC_CONSUMER_TOKEN!, 
+//           amount: Decimal.fromUserInput(
+//               process.env.NEXT_PUBLIC_CONSUMER_GAS_PRICE ?? "0.25", 
+//               process.env. NEXT_PUBLIC_CONSUMER_DECIMALS ? Number(process.env.NEXT_PUBLIC_CONSUMER_DECIMALS) : 6
+//           ) }
+//         });
+//      console.log(consumerClient)
+//   }
+//   setupKeplr()
 
   return (
     <>

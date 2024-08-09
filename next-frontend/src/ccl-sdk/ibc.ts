@@ -1,82 +1,73 @@
-import { coinFromString, type SecretNetworkClient, fromUtf8 } from "secretjs";
-import { MsgAcknowledgement } from "secretjs/dist/protobuf/ibc/core/channel/v1/tx";
 import { loadContractConfig } from "./config";
 import { Contract, GatewayExecuteMsg } from "./types";
 import { getEncryptedSignedMsg } from "./crypto";
 import { OfflineAminoSigner } from "@cosmjs/amino";
 import { AminoWallet } from "secretjs/dist/wallet_amino";
+import type { MsgTransferEncodeObject } from "@cosmjs/stargate";
+import { MsgTransferResponse, type MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { SigningStargateClient } from "@cosmjs/stargate"
+import { sleep } from "./utils";
 
-const IBC_PORT = "transfer";
+
+const  IBC_PORT  = "transfer"
+
 
 export const sendIBCToken = async (
-    client: SecretNetworkClient,
+    client: SigningStargateClient,
+    sender: string,
     receiver: string,
-    token: string,
+    denom: string,
     amount: string,
-    source_channel: string,
+    sourceChannel: string,
     memo: string = "",
-    timeout_timestamp?: string
+    timeoutTimestamp?: string
 ) => {
-    console.log("Sending IBC token...");
-    console.log("receiver:", receiver);
-    console.log("token:", token);
-    console.log("amount:", amount);
-    console.log("source_channel:", source_channel);
-    console.log("memo:", memo);
-    console.log("\n\n\n");
 
-    const res = await client.tx.ibc.transfer({
-        sender: client.address,
+ 
+    const transferMsg : Partial<MsgTransfer> = {
+        sourcePort: IBC_PORT,
+        sourceChannel,
+        token: { denom, amount },
+        sender,
         receiver,
-        token: coinFromString(amount + token),
-        source_port: IBC_PORT,
-        source_channel,
         memo,
-        timeout_timestamp: timeout_timestamp ?? String(Math.floor(Date.now() / 1000) + 300)
-    }, { 
-        gasLimit: memo.length > 0 ? 400000 : 200000,
-        feeDenom: token
-    });
+        timeoutTimestamp: BigInt(timeoutTimestamp ?? (Date.now() + 300_000) * 1_000_000),
+                // defaults to 5 minutes from now
+    }
+    
 
-    const ibcResponse = res.ibcResponses[0];
-
-    if (!ibcResponse) return res;
-    console.log("Broadcasted IbcTX. Waiting for Ack:", ibcResponse);
-    const ibcRes = await ibcResponse;
-
-    console.log("ibc Ack Received!");
-
-    const packet = ibcRes.tx.tx.body?.messages?.[1];
-
-    const config = loadContractConfig();
-
-    if (receiver == config.gateway?.address) {
-        const info = await MsgAcknowledgement.fromJSON(packet);
-
-        console.log("info ack:", info);
-
-        const ack: any = JSON.parse(fromUtf8(info.acknowledgement));
-
-        console.log("parsed ack:", ack);
-
-        if ("error" in ack) {
-            throw new Error("Error in ack: " + ack.error);
-        }
-
-        if (!("result" in ack)) {
-            throw new Error("Result not found in ack");
-        }
-
-        const ackRes = Buffer.from(ack.result, 'base64').toString('utf-8');
-        console.log("ackRes:", ackRes);
+    console.log("ibc send msg:", transferMsg)
+    
+    const msg : MsgTransferEncodeObject = {
+        typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
+        value: transferMsg
     }
 
-    return res;
-};
+    const tx = await client.signAndBroadcast(
+        sender,
+        [msg],
+        "auto",
+    )
+
+
+    const res = MsgTransferResponse.fromJSON(tx.msgResponses[0])
+    // success decoding the response
+    res.sequence
+
+    console.log("ibc send tx hash:", tx.transactionHash, "\n")
+
+    // wait for the acknoledgement
+    await sleep(20000);
+
+    return tx;
+}
+
+
+
 
 export const gatewayHookMemo = (
-    msg: GatewayExecuteMsg,
-    contract?: Contract
+    msg : GatewayExecuteMsg,
+    contract? : Contract
 ) => {
     contract ??= loadContractConfig().gateway!;
 
@@ -86,13 +77,13 @@ export const gatewayHookMemo = (
             msg
         }
     });
-};
+}
 
 export const gatewayChachaHookMemo = async (
-    wallet: OfflineAminoSigner | AminoWallet,
-    execute_msg: GatewayExecuteMsg,
-    contract?: Contract,
-    gatewayKey?: string
+    wallet:  OfflineAminoSigner | AminoWallet,
+    execute_msg : GatewayExecuteMsg,
+    contract? : Contract,
+    gatewayKey? : string
 ) => {
     contract ??= loadContractConfig().gateway!;
 
@@ -108,4 +99,4 @@ export const gatewayChachaHookMemo = async (
             msg
         }
     });
-};
+}

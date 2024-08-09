@@ -1,25 +1,53 @@
 import { CodeConfig, ContractConfig, IbcConfig } from "./types";
 
 // Hardcoded data
+
+//Secret testnet
+// const codeConfig: CodeConfig = {
+//     gateway: {
+//         code_id: 8882,
+//         code_hash: "d4a018804bf63b6cfd5be52b650368e8ad89f57c66841f6b2da7ee143dfc75fb"
+//     }
+// };
+
+//Secret mainnet
 const codeConfig: CodeConfig = {
     gateway: {
-        code_id: 8882,
-        code_hash: "f3c2e28cd1574d128ded60ce967cdb46f7515d807be49127bcc9249c5fd97802"
+        code_id: 1799,
+        code_hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
     }
 };
 
+//Secret testnet
+// const contractConfig: ContractConfig = {
+//     gateway: {
+//         address: "secret1q0mycclu927u5m0tn50zgl5af4utrlkzz706lm",
+//         hash: "d4a018804bf63b6cfd5be52b650368e8ad89f57c66841f6b2da7ee143dfc75fb"
+//     }
+// };
+
+//Secret mainnet
 const contractConfig: ContractConfig = {
     gateway: {
-        address: "secret1q0mycclu927u5m0tn50zgl5af4utrlkzz706lm",
-        hash: "d4a018804bf63b6cfd5be52b650368e8ad89f57c66841f6b2da7ee143dfc75fb"
+        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
+        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
     }
 };
 
+//Axelar testnet config
+// const ibcConfig: IbcConfig = {
+//     secret_channel_id: "channel-3",
+//     consumer_channel_id: "channel-311",
+//     ibc_denom: "ibc/646433b85336ac9ba9171ec08ec4470d93c149b3354a4a5bf687eb09dfd9e751"
+// };
+
+//Osmosis mainnet config
 const ibcConfig: IbcConfig = {
-    secret_channel_id: "channel-3",
-    consumer_channel_id: "channel-311",
-    ibc_denom: "ibc/646433b85336ac9ba9171ec08ec4470d93c149b3354a4a5bf687eb09dfd9e751"
+    secret_channel_id: "channel-1",
+    consumer_channel_id: "channel-88",
+    ibc_denom: "ibc/19f40553b5a6948aa6bdef18bff71bf782008f68e03d39f2e6d5b822ba729deb"
 };
+
 
 // Functions to get the config data
 export const loadCodeConfig = (): CodeConfig => {

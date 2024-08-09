@@ -3,7 +3,7 @@
 // import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SecretjsContextProvider } from "../utils/SecretContext";
+import { CosmosjsContextProvider } from "../utils/CosmosContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SecretjsContextProvider>
+        <CosmosjsContextProvider>
           {children}
-        </SecretjsContextProvider>
+        </CosmosjsContextProvider>
       </body>
     </html>
   );

@@ -57,7 +57,11 @@ export const getEncryptedSignedMsg = async (
   const ciphertextHash = sha256(ciphertext);
 
   const signDoc = getArb36SignDoc(signerAddress, ciphertextHash);
-  const signRes = await signer.signAmino(signerAddress, signDoc);
+  const signRes = await (window as any).keplr?.signAmino(
+    "osmosis-1",
+    signerAddress, 
+    signDoc,
+  );
 
   const stdTx = makeStdTx(signDoc, signRes.signature);
   const res = await verifyAdr36Tx(stdTx);

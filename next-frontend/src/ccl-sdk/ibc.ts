@@ -56,6 +56,10 @@ export const sendIBCToken = async (
 
     console.log("ibc send tx hash:", tx.transactionHash, "\n")
 
+    const mintscanUrl = `https://www.mintscan.io/osmosis/tx/${tx.transactionHash}`;
+
+    alert(`Encryted Transaction URL: ${mintscanUrl}`);
+
     // wait for the acknoledgement
     await sleep(20000);
 

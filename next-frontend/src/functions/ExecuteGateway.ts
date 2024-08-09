@@ -19,7 +19,6 @@ const ExecuteGateway = () => {
 
     let cosmosjs = context?.cosmosjs; 
     let keplrAddress = context?.keplrAddress;
-    let offline
 
     let execute_gateway_contract = async (user_string: string) => {
 

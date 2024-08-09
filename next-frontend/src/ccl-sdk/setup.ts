@@ -1,7 +1,7 @@
 import { secretClient } from './clients';
 import { codeConfigExists, contractConfigExists, ibcConfigExists, saveIbcConfig } from './config';
 import { instantiateContracts, uploadContracts } from './contracts';
-import { CONSUMER_CHAIN_ID, CONSUMER_TOKEN } from './env';
+import { NEXT_PUBLIC_CONSUMER_CHAIN_ID, NEXT_PUBLIC_CONSUMER_TOKEN } from './env';
 import { toHex, toUtf8 } from 'secretjs';
 import { sha256 } from '@noble/hashes/sha256';
 import { ClientState } from 'secretjs/src/protobuf/ibc/lightclients/tendermint/v1/tendermint';
@@ -13,7 +13,7 @@ const getIbcConnection = async () : Promise<string | undefined> => {
     for (const state of secretStates.reverse()) {
         try {
             const stateRes = state.client_state as ClientState;
-            if (stateRes.chain_id == CONSUMER_CHAIN_ID
+            if (stateRes.chain_id == NEXT_PUBLIC_CONSUMER_CHAIN_ID
             ) {
                 const clientConn = await secretClient.query.ibc_connection.clientConnections({
                     client_id: state.client_id
@@ -52,7 +52,7 @@ const setupIbc = async () => {
     if (!channel) return false;
 
     const ibc_denom = "ibc/" + toHex(sha256(toUtf8(
-        channel.channel_id! + '/transfer/' + CONSUMER_TOKEN
+        channel.channel_id! + '/transfer/' + NEXT_PUBLIC_CONSUMER_TOKEN
     ))).toUpperCase();
 
 

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { SigningStargateClient } from "@cosmjs/stargate"
 import { Decimal } from "@cosmjs/math";
+import QueryModal from "@/components/Query";
 
 export default function Home() {
   const context = useContext(CosmosjsContext);
@@ -77,6 +78,7 @@ export default function Home() {
             />
           </div>
           <EncryptModal />
+          <QueryModal />
         </div>
         <div className="flex justify-center transform scale-50 mt-4">
           <Image

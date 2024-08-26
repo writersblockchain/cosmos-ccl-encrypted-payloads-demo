@@ -9,6 +9,7 @@ import { CosmosjsContext } from "../utils/CosmosContext";
 //
 import { SigningStargateClient } from "@cosmjs/stargate"
 import { Decimal } from "@cosmjs/math";
+import { toBase64, toUtf8 } from '@cosmjs/encoding';
 
 
 // let CONSUMER_TOKEN = "uaxl"
@@ -65,4 +66,38 @@ const ExecuteGateway = () => {
     };
 };
 
-export { ExecuteGateway };
+
+const QueryGateway = () => {
+  const context = useContext(CosmosjsContext);
+
+  let cosmosjs = context?.cosmosjs; 
+  let keplrAddress = context?.keplrAddress;
+
+
+  let query_gateway_contract = async (chainId: string) : Promise<string> => {
+
+      const keplr = (window as any).keplr;
+      await keplr.enable(chainId);
+
+      const signRes = await keplr.signArbitrary(chainId, keplrAddress!, "foo")
+      console.log("signature", signRes);
+
+      const credential = {
+        message: toBase64(toUtf8("foo")),
+        signature: signRes.signature,
+        pubkey: signRes.pub_key.value,
+        hrp: keplrAddress!.split("1")[0]
+      }
+
+      const res = await queryGatewayAuth({ get_secret: { }}, [credential]) as string
+      console.log("res:", res);
+      
+      return res;
+  }
+
+  return {
+    query_gateway_contract
+  };
+};
+
+export { ExecuteGateway, QueryGateway };

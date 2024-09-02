@@ -42,12 +42,18 @@ const contractConfig: ContractConfig = {
 // };
 
 //Osmosis mainnet config
-const ibcConfig: IbcConfig = {
+const osmoConfig: IbcConfig = {
     secret_channel_id: "channel-1",
     consumer_channel_id: "channel-88",
     ibc_denom: "ibc/19f40553b5a6948aa6bdef18bff71bf782008f68e03d39f2e6d5b822ba729deb"
 };
 
+
+const cosmoConfig: IbcConfig = {
+    secret_channel_id: "channel-0",
+    consumer_channel_id: "channel-235",
+    ibc_denom: "ibc/TODO"
+};
 
 // Functions to get the config data
 export const loadCodeConfig = (): CodeConfig => {
@@ -58,9 +64,10 @@ export const loadContractConfig = (): ContractConfig => {
     return contractConfig;
 };
 
-export const loadIbcConfig = (): IbcConfig => {
-    return ibcConfig;
+export const loadIbcConfig = (chainId?: string): IbcConfig => {
+    return chainId === "osmosis-1" ? osmoConfig : cosmoConfig;
 };
+
 
 // The save functions are no-ops since data is hardcoded
 export const saveCodeConfig = (config: CodeConfig): void => {

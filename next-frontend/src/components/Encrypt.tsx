@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExecuteGateway } from "../functions/ExecuteGateway";
+import { ExecuteGateway } from "../functions/QueryGateway";
 
 const EncryptModal = () => {
     const [inputString, setInputString] = useState('');

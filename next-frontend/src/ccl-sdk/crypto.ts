@@ -19,6 +19,7 @@ export const getEncryptedSignedMsg = async (
   signer          :   OfflineAminoSigner | AminoWallet,
   msg             :   GatewayExecuteMsg,
   gatewayKey?     :   string,
+  chainId?        :   string,
 ): Promise<GatewayExecuteMsg> => {
 
   gatewayKey ??=  await getGatewayEncryptionKey()
@@ -58,7 +59,7 @@ export const getEncryptedSignedMsg = async (
 
   const signDoc = getArb36SignDoc(signerAddress, ciphertextHash);
   const signRes = await (window as any).keplr?.signAmino(
-    "osmosis-1",
+    chainId,
     signerAddress, 
     signDoc,
   );

@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
-import { QueryGateway } from "../functions/ExecuteGateway";
+import React, { useContext, useEffect, useState } from 'react';
+import { QueryGateway } from "../functions/QueryGateway";
+import { CosmosjsContext } from '@/utils/CosmosContext';
 
 const QueryModal = () => {
-    const [valueString, setValueString] = useState('Value Missing');
+
+    const context = useContext(CosmosjsContext);
+    const chainId = context?.chainId;
+    const [valueString, setValueString] = useState('No Value');
 
     const { query_gateway_contract } = QueryGateway();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        query_gateway_contract("osmosis-1")
+    const handleSubmit = (e? : React.FormEvent<HTMLFormElement>) => {
+        if (e) e.preventDefault();
+        query_gateway_contract()
         .then(setValueString)
     };
+
+    // when first rendered check local storage to see if "queryPermit" exist
+    // if exist call handleSubmit
+
+    useEffect(() => {
+        if (localStorage.getItem(chainId + ":queryPermit")) {
+            handleSubmit();
+        }
+    }), [];
+
 
     return (
         <div className="flex flex-col full-height justify-start items-center lg:px-8 text-brand-orange">

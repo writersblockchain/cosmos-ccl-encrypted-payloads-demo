@@ -86,6 +86,7 @@ export const gatewayHookMemo = (
 export const gatewayChachaHookMemo = async (
     wallet:  OfflineAminoSigner | AminoWallet,
     execute_msg : GatewayExecuteMsg,
+    chainId: string,
     contract? : Contract,
     gatewayKey? : string
 ) => {
@@ -94,7 +95,8 @@ export const gatewayChachaHookMemo = async (
     const msg = await getEncryptedSignedMsg(
         wallet,
         execute_msg,
-        gatewayKey
+        gatewayKey,
+        chainId
     );
 
     return JSON.stringify({

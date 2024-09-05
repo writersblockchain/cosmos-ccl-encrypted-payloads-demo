@@ -961,6 +961,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "secret-voting"
+version = "0.2.0"
+dependencies = [
+ "ca-sdk",
+ "cosmwasm-schema",
+ "secret-cosmwasm-std",
+ "secret-cosmwasm-storage",
+ "secret-toolkit",
+ "snafu",
+ "thiserror",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.199"
 source = "registry+https://github.com/rust-lang/crates.io-index"

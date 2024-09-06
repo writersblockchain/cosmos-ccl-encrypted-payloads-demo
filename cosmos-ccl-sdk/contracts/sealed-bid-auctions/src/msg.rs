@@ -1,6 +1,6 @@
 use cosmwasm_schema::cw_serde;
 
-use cosmwasm_std::{Uint64, VoteOption};
+use cosmwasm_std::{Uint128, Uint64};
 use sdk::gateway::{GatewayExecuteMsg, GatewayQueryMsg};
 
 
@@ -13,15 +13,15 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum InnerMethods {
-    CreateProposal {
+    CreateAuctionItem {
         name: String,
         description: String,
         end_time: Uint64
     },
 
-    Vote {
-        proposal_id: Uint64,
-        vote: VoteOption
+    Bid {
+        auction_id: Uint64,
+        amount: Uint128
     },
 }
 
@@ -30,10 +30,11 @@ pub enum InnerMethods {
 
 #[cw_serde]
 pub enum InnerQueries {
-    Proposals {},
-    Proposal { proposal_id: u64 },
-    MyVote { proposal_id: u64 },
-    AllVotes { proposal_id: u64 },
+    Auctions {},
+    Auction { auction_id: u64 },
+    MyBid { auction_id: u64 },
+    AllBids { auction_id: u64 },
+    Result { auction_id: u64 },
 }
 
 

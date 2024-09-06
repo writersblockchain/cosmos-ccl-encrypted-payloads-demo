@@ -75,7 +75,7 @@ pub fn query_inner(
             to_binary(&votes)
         },
 
-        InnerQueries::MuVote { proposal_id } => {
+        InnerQueries::MyVote { proposal_id } => {
             let vote = VOTE_MAP
                 .add_suffix(&proposal_id.to_be_bytes())
                 .get(deps.storage, &auth_user);

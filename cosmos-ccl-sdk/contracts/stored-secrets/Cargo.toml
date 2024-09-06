@@ -1,5 +1,5 @@
 [package]
-name = "gateway-simple"
+name = "stored-secrets"
 version     = { workspace = true }
 edition     = { workspace = true }
 repository  = { workspace = true }

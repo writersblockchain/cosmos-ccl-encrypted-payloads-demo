@@ -1,4 +1,4 @@
-import { CodeConfig, ContractConfig, IbcConfig } from "./types";
+import { CodeConfig, CodeMultiConfig, ContractConfig, ContractMultiConfig, IbcConfig } from "./types";
 
 // Hardcoded data
 
@@ -34,6 +34,21 @@ const contractConfig: ContractConfig = {
     }
 };
 
+
+const codeMultiConfig: CodeMultiConfig = {
+    secrets: {
+        code_id: 1799,
+        code_hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+    }
+};
+
+const contractMultiConfig: ContractMultiConfig = {
+    secrets: {
+        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
+        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+    }
+};
+
 //Axelar testnet config
 // const ibcConfig: IbcConfig = {
 //     secret_channel_id: "channel-3",
@@ -63,6 +78,11 @@ export const loadCodeConfig = (): CodeConfig => {
 export const loadContractConfig = (): ContractConfig => {
     return contractConfig;
 };
+
+
+export const loadCodeMultiConfig = (): CodeMultiConfig => (codeMultiConfig)
+export const loadContractMultiConfig = (): ContractMultiConfig => (contractMultiConfig)
+
 
 export const loadIbcConfig = (chainId?: string): IbcConfig => {
     return chainId === "osmosis-1" ? osmoConfig : cosmoConfig;

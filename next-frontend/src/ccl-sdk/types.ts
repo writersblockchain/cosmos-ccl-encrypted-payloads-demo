@@ -21,6 +21,12 @@ export type CodeConfig = {
     snip20?      :   Code;
 }
 
+export type CodeMultiConfig = {
+    secrets?    :   Code;
+    votes?      :   Code;
+    auctions?   :   Code;
+}
+
 export type Contract = {
     address: string,
     hash:    string,
@@ -31,6 +37,13 @@ export type ContractConfig = {
     gateway?   :   Contract;
     sscrt?      :   Contract,
 }
+
+export type ContractMultiConfig = {
+    secrets?   :   Contract;
+    votes?     :   Contract;
+    auctions?  :   Contract;
+}
+
 
 
 export type IbcConfig = {
@@ -121,18 +134,18 @@ export type EncryptedPayload = {
     
 
 
-export type GatewayQueryMsg = 
+export type GatewayQueryMsg<I = InnerQueries> = 
 
     { encryption_key: {} }              |
 
     { with_permit: { 
-        query: InnerQueries, 
+        query: I, 
         permit: Permit, 
         hrp?: string 
     }}                                  |
 
     { with_auth_data: { 
-        query: InnerQueries, 
+        query: I, 
         auth_data: CosmosAuthData 
     }}                                  
 

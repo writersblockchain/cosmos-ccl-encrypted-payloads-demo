@@ -1,11 +1,10 @@
 "use client";
 
-import { CosmosjsContext } from "../utils/CosmosContext";
 import { useContext } from "react";
-import EncryptModal from "@/components/Encrypt";
-import Image from "next/image";
-import QueryModal from "@/components/Query";
+import { CosmosjsContext } from "../utils/CosmosContext";
 import { Connector } from "@/components/Connector";
+import QuerySecretModal from "@/components/QuerySecret";
+import ProposalstModal from "@/components/Proposals";
 
 // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
@@ -19,7 +18,7 @@ export const VotingCase = () => {
 
 
   return (
-      <div className="flex flex-col items-center ">
+      <>
         <p className="text-xl font-bold mt-4">
             Confidential Voting
         </p>
@@ -34,18 +33,9 @@ export const VotingCase = () => {
         </h6>
         <div className="mt-5 sm:mx-auto w-full sm:max-w-sm">
           <Connector />
-          <EncryptModal />
-          <QueryModal />
+          <ProposalstModal />
         </div>
-        <div className="flex justify-center transform scale-50 mt-4">
-          <Image
-            src="/secret-logo.png"
-            alt="Description of my image"
-            width={150} // Desired width in pixels
-            height={150} // Desired height in pixels
-          />
-        </div>
-    </div>
+    </>
   );
 }
 

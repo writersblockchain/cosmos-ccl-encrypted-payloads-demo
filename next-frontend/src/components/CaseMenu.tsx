@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { QueryGateway } from "../functions/QueryGateway";
+import { QueryGateway } from "../functions/Gateway";
 import { CosmosjsContext } from '@/utils/CosmosContext';
 import { AppCase } from '@/utils/types';
 

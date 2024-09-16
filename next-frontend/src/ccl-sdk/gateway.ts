@@ -46,7 +46,7 @@ export const getGatewayEncryptionKey = async () => {
 
 
 
-export const queryGateway = async (query: GatewayQueryMsg) => {
+export async function queryGateway<I> (query: GatewayQueryMsg<I>) {
     const config = loadContractConfig();
     const res = await secretClient.query.compute.queryContract({
         contract_address: config.gateway!.address,
@@ -57,7 +57,7 @@ export const queryGateway = async (query: GatewayQueryMsg) => {
 }
 
 
-export const queryGatewayAuth = (query: InnerQueries, credentials: CosmosCredential[]) => {
+export function queryGatewayAuth<I>(query: I, credentials: CosmosCredential[])  {
     return queryGateway({
         with_auth_data: {
             query,

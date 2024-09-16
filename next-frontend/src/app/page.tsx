@@ -1,21 +1,15 @@
 "use client";
 
-import { WalletIcon } from "@heroicons/react/24/outline";
-import { CosmosjsContext } from "../utils/CosmosContext";
 import { useContext, useState } from "react";
-import EncryptModal from "@/components/Encrypt";
-import Image from "next/image";
+import { CosmosjsContext } from "../utils/CosmosContext";
 import { useEffect } from "react";
-import { SigningStargateClient } from "@cosmjs/stargate"
-import { Decimal } from "@cosmjs/math";
-import QueryModal from "@/components/Query";
 import { AppCase } from "@/utils/types";
+import Image from "next/image";
 import CaseMenu from "@/components/CaseMenu";
-import { Connector } from "@/components/Connector";
 import EncryptionCase from "@/cases/Encrypted";
+import VotingCase from "@/cases/Voting";
+import AuctionsCase from "@/cases/Auctions";
 
-
-// export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
 
 export default function Home() {
@@ -43,13 +37,29 @@ export default function Home() {
     return null; // Handle the case when context is null
   }
 
-
-
+  // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
   return (
     <div className="flex justify-center bg-brand-tan text-brand-orange min-h-screen py-12 lg:px-8 relative ">
       <CaseMenu appCase={appCase} setAppCase={setCase} />
 
-      { appCase == "EncryptedData" ? <EncryptionCase /> : <></> }
+      <div className="flex flex-col items-center ">
+
+        { appCase == "EncryptedData" ? <EncryptionCase /> : <></> }
+        { appCase == "ConfVoting" ? <VotingCase /> : <></> }
+        { appCase == "SealedBids" ? <AuctionsCase /> : <></> }
+
+
+        <div className="flex justify-center transform scale-50 mt-4">
+            <Image
+              src="/secret-logo.png"
+              alt="Description of my image"
+              width={150} // Desired width in pixels
+              height={150} // Desired height in pixels
+            />
+        </div>
+
+      </div>
+
     </div>
   );
 }

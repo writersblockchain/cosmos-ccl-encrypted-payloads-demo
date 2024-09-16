@@ -9,7 +9,7 @@ import { Connector } from "@/components/Connector";
 // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
 
-export const EncryptionCase = () => {
+export const AutctionsCase = () => {
 
   const context = useContext(CosmosjsContext);
   if (!context) {
@@ -20,7 +20,7 @@ export const EncryptionCase = () => {
   return (
       <>
         <p className="text-xl font-bold mt-4">
-            Cross-Chain IBC Encryption Demo
+            Sealed Bids Auctions
         </p>
         <h6 className="text-xs hover:underline text-brand-blue">
           <a
@@ -40,4 +40,4 @@ export const EncryptionCase = () => {
   );
 }
 
-export default EncryptionCase;
+export default AutctionsCase;

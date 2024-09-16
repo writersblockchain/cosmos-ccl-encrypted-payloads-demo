@@ -1,18 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { QueryGateway } from "../functions/QueryGateway";
+import { QueryGateway } from "../functions/Gateway";
 import { CosmosjsContext } from '@/utils/CosmosContext';
 
-const QueryModal = () => {
+const QuerySecretModal = () => {
 
     const context = useContext(CosmosjsContext);
     const chainId = context?.chainId;
     const [valueString, setValueString] = useState('No Value');
 
-    const { query_gateway_contract } = QueryGateway();
+    const { query_secret } = QueryGateway();
 
     const handleSubmit = (e? : React.FormEvent<HTMLFormElement>) => {
         if (e) e.preventDefault();
-        query_gateway_contract()
+        query_secret()
         .then(setValueString)
     };
 
@@ -54,4 +54,4 @@ const QueryModal = () => {
     );
 };
 
-export default QueryModal;
+export default QuerySecretModal;

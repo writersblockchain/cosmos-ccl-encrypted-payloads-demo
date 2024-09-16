@@ -10,17 +10,17 @@ import { concat, json_to_bytes } from "@blake.regalia/belt";
 import { fromBase64, toBase64, toAscii } from "@cosmjs/encoding";
 import { chacha20_poly1305_seal, ecdh } from "@solar-republic/neutrino"
 import { Random, Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto"
-import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload } from "./types";
+import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload, ExtendedMethods } from "./types";
 import { getGatewayEncryptionKey } from "./gateway";
 
 
 
-export const getEncryptedSignedMsg = async (
+export async function getEncryptedSignedMsg<E = ExtendedMethods>  (
   signer          :   OfflineAminoSigner | AminoWallet,
-  msg             :   GatewayExecuteMsg,
+  msg             :   E,
   gatewayKey?     :   string,
   chainId?        :   string,
-): Promise<GatewayExecuteMsg> => {
+): Promise<GatewayExecuteMsg> {
 
   gatewayKey ??=  await getGatewayEncryptionKey()
 
@@ -45,7 +45,7 @@ export const getEncryptedSignedMsg = async (
     user_address: signerAddress,
     user_pubkey: toBase64(signerPubkey),
     hrp: signerAddress.split("1")[0],
-    msg: toBase64(json_to_bytes(msg))
+    msg: toBase64(json_to_bytes(msg as any))
   }
 
 

@@ -37,11 +37,15 @@ const ProposalstModal = () => {
         if (selectedProposal) {
             query_my_vote(selectedProposal.proposal_id)
             .then((data) => {
-                setSelectedVote(data);
+                console.log("vote data:", data)
+                if (typeof data === "object" && "vote" in data) {
+                    setSelectedVote(data.vote);
+                }
             });
         }
     }, [keplrAddress, selectedProposal]);
 
+    
     // reset votes on proposal change
     useEffect(() => {
         setSelectedVote(null);
@@ -113,7 +117,7 @@ const ProposalstModal = () => {
                         {selectedVote && (
                             <div className="my-2 flex justify-center">
                                 <button
-                                    disabled={submitting}
+                                    disabled={submitting || !selectedVote}
                                     onClick={() => handleVote(selectedVote)}
                                     className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-orange hover:bg-brand-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                 >

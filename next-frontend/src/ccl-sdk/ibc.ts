@@ -1,5 +1,5 @@
 import { loadContractConfig } from "./config";
-import { Contract, GatewayExecuteMsg } from "./types";
+import { Contract, ExtendedMethods, GatewayExecuteMsg } from "./types";
 import { getEncryptedSignedMsg } from "./crypto";
 import { OfflineAminoSigner } from "@cosmjs/amino";
 import { AminoWallet } from "secretjs/dist/wallet_amino";
@@ -69,10 +69,10 @@ export const sendIBCToken = async (
 
 
 
-export const gatewayHookMemo = (
-    msg : GatewayExecuteMsg,
+export function gatewayHookMemo<E = ExtendedMethods> (
+    msg : E,
     contract? : Contract
-) => {
+) {
     contract ??= loadContractConfig().gateway!;
 
     return JSON.stringify({
@@ -83,16 +83,16 @@ export const gatewayHookMemo = (
     });
 }
 
-export const gatewayChachaHookMemo = async (
+export async function gatewayChachaHookMemo<E = ExtendedMethods> (
     wallet:  OfflineAminoSigner | AminoWallet,
-    execute_msg : GatewayExecuteMsg,
+    execute_msg : E,
     chainId: string,
     contract? : Contract,
     gatewayKey? : string
-) => {
+)  {
     contract ??= loadContractConfig().gateway!;
 
-    const msg = await getEncryptedSignedMsg(
+    const msg = await getEncryptedSignedMsg<E>(
         wallet,
         execute_msg,
         gatewayKey,

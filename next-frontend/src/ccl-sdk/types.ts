@@ -39,9 +39,9 @@ export type ContractConfig = {
 }
 
 export type ContractMultiConfig = {
-    secrets?   :   Contract;
-    votes?     :   Contract;
-    auctions?  :   Contract;
+    secrets   :   Contract;
+    votes     :   Contract;
+    auctions  :   Contract;
 }
 
 
@@ -110,11 +110,11 @@ export type InnerQueries =
 
 
 
-export type GatewayExecuteMsg = 
+export type GatewayExecuteMsg<E = ExtendedMethods> = 
 
     { reset_encryption_key: {} }         |
 
-    { extension: { msg: ExtendedMethods } }           |
+    { extension: { msg: E } }           |
     
     { encrypted: { 
         payload: string, 

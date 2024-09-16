@@ -1,6 +1,6 @@
 import { MsgExecuteContractParams, MsgInstantiateContractParams, MsgInstantiateContractResponse, TxResultCode } from "secretjs";
-import { Contract, CosmosCredential, InnerQueries, GatewayExecuteMsg as GatewayExecuteMsg, GatewaySimpleInitMsg, GatewayQueryMsg } from "./types";
-import { loadCodeConfig, loadContractConfig } from "./config";
+import { Contract, CosmosCredential, GatewayExecuteMsg as GatewayExecuteMsg, GatewaySimpleInitMsg, GatewayQueryMsg } from "./types";
+import { loadCodeConfig } from "./config";
 import { getConsumerWallet, secretClient } from "./clients";
 import { getEncryptedSignedMsg } from "./crypto";
 import { OfflineAminoSigner } from "@cosmjs/amino";
@@ -38,27 +38,28 @@ export const instantiateGatewaySimple = async () : Promise<Contract> => {
 
 
 
-export const getGatewayEncryptionKey = async () => {
-    const res = await queryGateway({ encryption_key: {} });
+export const getGatewayEncryptionKey = async (contract: Contract) => {
+    const res = await queryGateway(contract, { encryption_key: {} });
     return res as string;
 }
 
 
 
 
-export async function queryGateway<I> (query: GatewayQueryMsg<I>) {
-    const config = loadContractConfig();
+export async function queryGateway<I> (contract: Contract, query: GatewayQueryMsg<I>) {
     const res = await secretClient.query.compute.queryContract({
-        contract_address: config.gateway!.address,
-        code_hash: config.gateway!.hash,
+        contract_address: contract.address,
+        code_hash: contract.hash,
         query
     });
     return res;
 }
 
 
-export function queryGatewayAuth<I>(query: I, credentials: CosmosCredential[])  {
-    return queryGateway({
+export function queryGatewayAuth<I>(contract: Contract, query: I, credentials: CosmosCredential[])  {
+    return queryGateway(
+        contract,
+        {
         with_auth_data: {
             query,
             auth_data: {
@@ -69,13 +70,15 @@ export function queryGatewayAuth<I>(query: I, credentials: CosmosCredential[])  
 }
 
 
-export const executeGateway = async (execute_msg: GatewayExecuteMsg) => {
-    const config = loadContractConfig();
+export const executeGateway = async (
+    contract: Contract,
+    execute_msg: GatewayExecuteMsg
+) => {
     const msg : MsgExecuteContractParams<GatewayExecuteMsg> = {
         msg: execute_msg,
         sender: secretClient.address,
-        contract_address: config.gateway!.address,
-        code_hash: config.gateway!.hash,
+        contract_address: contract.address,
+        code_hash: contract.hash,
         sent_funds: [],
     }
     const tx = await secretClient.tx.compute.executeContract(msg, { gasLimit: 900_000 });
@@ -85,12 +88,13 @@ export const executeGateway = async (execute_msg: GatewayExecuteMsg) => {
 
 
 export const executeGatewayEncrypted = async (
+    contract: Contract,
     execute_msg: GatewayExecuteMsg, 
     wallet?: OfflineAminoSigner | AminoWallet,
     gatewayKey?: string,
 ) => {
-
     return await executeGateway(
+        contract,
         await getEncryptedSignedMsg(
             wallet ?? await getConsumerWallet(),
             execute_msg,

@@ -46,6 +46,16 @@ const contractMultiConfig: ContractMultiConfig = {
     secrets: {
         address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
         hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+    },
+
+    // to update:
+    auctions: {
+        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
+        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+    },
+    votes: {
+        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
+        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
     }
 };
 

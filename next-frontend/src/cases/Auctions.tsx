@@ -5,6 +5,7 @@ import { useContext } from "react";
 import EncryptModal from "@/components/Encrypt";
 import QuerySecretModal from "@/components/QuerySecret";
 import { Connector } from "@/components/Connector";
+import AuctionstModal from "@/components/Auctions";
 
 // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
@@ -33,8 +34,7 @@ export const AuctionsCase = () => {
         </h6>
         <div className="mt-5 sm:mx-auto w-full sm:max-w-sm">
           <Connector />
-          <EncryptModal />
-          <QuerySecretModal />
+          <AuctionstModal />
         </div>
     </>
   );

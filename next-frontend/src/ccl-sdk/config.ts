@@ -63,7 +63,7 @@ const contractConfig: ContractConfig = {
 const contractMultiConfig: ContractMultiConfig = {
     auctions: {
         address: "secret1feeat5t3tqg72hha9nstpapc3q7hqhqskrn4m3",
-        hash: "9418039da258a045baa254211488176f22dee652a92651642a132514e51629b9"
+        hash: "9eaaeb849d139f2286c067fadf9c9ae73e27317ead0bb7240dc9ae32c83dfb4a"
     },
     votes: {
         address: "secret1j7d8h72udlqaqcxn9l35z8972lm2glaqytyx37",

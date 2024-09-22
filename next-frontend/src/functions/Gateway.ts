@@ -80,7 +80,7 @@ const ExecuteGateway = () => {
       return await (execute_gateway_contract(contract, msg));
   }
 
-  const bid_auction = async (auction_id: number, amount: string) => {
+  const bid_auction = async (auction_id: string, amount: string) => {
       const contract = contractConfig.auctions;
       const msg = { bid: { auction_id, amount } }
       return await (execute_gateway_contract(contract, msg));

@@ -6,3 +6,10 @@ export type Proposal = {
     description: string;
     end_time?: string;
 }
+
+export type Auction = {
+    auction_id: number;
+    name: string;
+    description: string;
+    end_time?: string;
+}

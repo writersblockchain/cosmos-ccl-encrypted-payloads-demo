@@ -1,38 +1,47 @@
 import { MsgExecuteContractParams, MsgInstantiateContractParams, MsgInstantiateContractResponse, TxResultCode } from "secretjs";
-import { Contract, CosmosCredential, GatewayExecuteMsg as GatewayExecuteMsg, GatewaySimpleInitMsg, GatewayQueryMsg } from "./types";
-import { loadCodeConfig } from "./config";
+import { Contract, CosmosCredential, GatewayExecuteMsg as GatewayExecuteMsg, InitMsg, GatewayQueryMsg } from "./types";
+import { codeMultiConfigExists, loadCodeMultiConfig, loadContractMultiConfig } from "./config";
 import { getConsumerWallet, secretClient } from "./clients";
 import { getEncryptedSignedMsg } from "./crypto";
 import { OfflineAminoSigner } from "@cosmjs/amino";
 import { AminoWallet } from "secretjs/dist/wallet_amino";
 
 
-export const instantiateGatewaySimple = async () : Promise<Contract> => {
+export const instantiateExamples = async () : Promise<Contract[]> => {
     
-    const config = loadCodeConfig();
-    const code = config.gateway!;
-    const hash = code.code_hash;
+    if (!codeMultiConfigExists()) {
+        const contracts : Contract[] = []; 
+        const config = loadCodeMultiConfig();
+        
+        for (const code of [config.secrets!, config.votes!, config.auctions!]) {
+            const { code_id, code_hash } = code;
+            const init_msg : InitMsg = {}
+            const msg : MsgInstantiateContractParams = {
+                code_id,
+                code_hash,
+                sender: secretClient.address,
+                label: `test-${Math.round(Date.now() / 1000)}`,
+                init_msg
+            }
+    
+        
+            const tx = await secretClient.tx.compute.instantiateContract(msg, { gasLimit: 300_000 });
+    
+            if (tx.code !==  TxResultCode.Success) {
+                throw new Error(`Error while instantiating contract: ${tx.rawLog}`);
+            }
+    
+            const address = MsgInstantiateContractResponse.decode(tx.data[0]).address;
+            contracts.push({ address, hash: code_hash })
+        }
+        return contracts;
 
-    const init_msg : GatewaySimpleInitMsg = {}
-
-    const msg : MsgInstantiateContractParams = {
-        code_id: code.code_id,
-        code_hash: hash,
-        sender: secretClient.address,
-        label: `test-${Math.round(Date.now() / 1000)}`,
-        init_msg
+    } else {
+        const cc = loadContractMultiConfig();
+        return [cc.secrets, cc.votes, cc.auctions];
     }
 
-    
-    const tx = await secretClient.tx.compute.instantiateContract(msg, { gasLimit: 300_000 });
 
-    if (tx.code !==  TxResultCode.Success) {
-        throw new Error(`Error while instantiating contract: ${tx.rawLog}`);
-    }
-
-    const address = MsgInstantiateContractResponse.decode(tx.data[0]).address;
-
-    return { address, hash }
 }
 
 
@@ -96,6 +105,7 @@ export const executeGatewayEncrypted = async (
     return await executeGateway(
         contract,
         await getEncryptedSignedMsg(
+            contract,
             wallet ?? await getConsumerWallet(),
             execute_msg,
             gatewayKey

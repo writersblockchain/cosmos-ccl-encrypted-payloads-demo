@@ -1,12 +1,14 @@
-import { getGatewayEncryptionKey, queryGatewayAuth } from '../ccl-sdk/gateway';
+import { getGatewayEncryptionKey, queryGateway, queryGatewayAuth } from '../ccl-sdk/gateway';
 import { gatewayChachaHookMemo, sendIBCToken } from '../ccl-sdk/ibc';
-import { loadContractConfig, loadContractMultiConfig, loadIbcConfig } from '../ccl-sdk/config';
+import { loadContractMultiConfig, loadIbcConfig } from '../ccl-sdk/config';
 import { useContext} from 'react';
 
 import { CosmosjsContext } from "../utils/CosmosContext";
-//
 import { toBase64, toUtf8 } from '@cosmjs/encoding';
-import { Contract, CosmosCredential } from '@/ccl-sdk/types';
+import { Contract, CosmosCredential, DataToSign } from '@/ccl-sdk/types';
+import { Random } from '@cosmjs/crypto';
+import { Proposal } from '@/utils/types';
+
 
 
 
@@ -100,14 +102,25 @@ const QueryGateway = () => {
   let keplrAddress = context?.keplrAddress;
   let chainId = context?.chainId;
   const contractConfig = loadContractMultiConfig();
-  
-  const query_gateway_contract = async (
+
+
+  const query_contract_public = async (
+    contract: Contract,
+    query: any
+  ) : Promise<any>  => {
+    const res = await queryGateway(contract, query);
+    console.log("query:", query, " res:", res);
+    return res;
+  }
+
+
+  const query_contract_auth = async (
     contract: Contract,
     query: object,
-    credMessage : string = "Query Permit"
+    data : string = "Query Permit"
   ) : Promise<any>  => {
 
-      const storageKey = chainId + ":queryPermit";
+      const storageKey = `${keplrAddress}:${contract.address}:queryPermit}`;
       const queryPermitStored = localStorage.getItem(storageKey);
 
       let credential : CosmosCredential; 
@@ -115,48 +128,55 @@ const QueryGateway = () => {
       if (queryPermitStored) {
         credential = JSON.parse(queryPermitStored) as CosmosCredential;
       } else {
-        const signRes = await (window as any).keplr.signArbitrary(chainId, keplrAddress!, credMessage)
+        const toSign : DataToSign = {
+          chain_id: chainId!,
+          contract_address: contract.address,
+          nonce: Random.getBytes(12),
+          data
+        }
+        const message = toUtf8(JSON.stringify(toSign));
+        const signRes = await (window as any).keplr.signArbitrary(chainId, keplrAddress!, JSON.stringify(toSign))
         credential = {
-          message: toBase64(toUtf8(credMessage)),
+          message: toBase64(message),
           signature: signRes.signature,
           pubkey: signRes.pub_key.value,
           hrp: keplrAddress!.split("1")[0]
         }
         localStorage.setItem(storageKey, JSON.stringify(credential));
       }
-
       const res = await queryGatewayAuth(contract, query, [credential]);
       console.log("query:", query, " res:", res);
       return res;
   }
 
-  const query_secret = (message : string = "Query Permit") : Promise<string> => {
-    return query_gateway_contract(contractConfig.secrets, { get_secret: { }}, message) as Promise<string>;
-  }
-
-  const query_proposals = (message?: string)  => {
-    return query_gateway_contract(contractConfig.votes, { proposals: { }}, message);
-  }
 
   const query_my_vote = (proposal_id: number, message?: string) => {
-    return query_gateway_contract(contractConfig.votes, { my_vote: { proposal_id }}, message);
+    return query_contract_auth(contractConfig.votes, { my_vote: { proposal_id }}, message);
   }
-
-  const query_auctions = (message?: string) => {
-    return query_gateway_contract(contractConfig.auctions, { auctions: { }}, message);
-  } 
 
   const query_my_bid = (auction_id: number, message?: string)  => {
-    return query_gateway_contract(contractConfig.auctions, { my_bid: { auction_id }}, message);
+    return query_contract_auth(contractConfig.auctions, { my_bid: { auction_id }}, message);
   }
 
-  const query_auction_result = (auction_id: number, message?: string) => {
-    return query_gateway_contract(contractConfig.auctions, { result: { auction_id }}, message);
+  const query_secret = () : Promise<string> => {
+    return query_contract_auth(contractConfig.secrets, { get_secret: { }}) as Promise<string>;
+  }
+
+  const query_proposals = () : Promise<Proposal[]>  => {
+    return query_contract_public(contractConfig.votes, { extension: { query: { proposals: { } } } });
+  }
+
+  const query_auctions = () => {
+    return query_contract_public(contractConfig.auctions, { extension: { query: { auctions: { } } } });
+  } 
+
+  const query_auction_result = (auction_id: number) => {
+    return query_contract_public(contractConfig.auctions, { extension: { query: { auction_result: { auction_id } } } });
   }
 
 
   return {
-    query_gateway_contract,
+    query_gateway_contract: query_contract_auth,
     query_secret,
     query_proposals,
     query_my_vote,

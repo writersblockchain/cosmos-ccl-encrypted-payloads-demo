@@ -1,27 +1,28 @@
 import { expect, describe, test, beforeAll } from 'vitest';
 import { getGatewayEncryptionKey, queryGatewayAuth } from '../src/gateway';
 import { consumerClient, consumerWallet } from '../src/clients';
-import { getArb36Credential } from '../src/crypto';
+import { getQueryCredential } from '../src/crypto';
 import { gatewayChachaHookMemo, gatewayHookMemo, sendIBCToken } from '../src/ibc';
 import { loadContractConfig, loadIbcConfig } from '../src/config';
-import { CONSUMER_TOKEN } from '../src/env';
+import { CONSUMER_CHAIN_ID, CONSUMER_TOKEN } from '../src/env';
 
 describe('Gateway contract interaction over IBC', () => {
 
+    const contract = loadContractConfig().gateway!;
     let gatewayKey : string | undefined;
 
+
     beforeAll(async () => {
-        gatewayKey = await getGatewayEncryptionKey();
+        gatewayKey = await getGatewayEncryptionKey(contract);
     });
 
     describe('sending a message over ibc', async () => {
         
-        const consumerQCFirst = await getArb36Credential(consumerWallet, "foo")
-        const consumerQCSecond = await getArb36Credential(consumerWallet, "bar")
+        const consumerQCFirst = await getQueryCredential(consumerWallet, contract, CONSUMER_CHAIN_ID!);
+        const consumerQCSecond = await getQueryCredential(consumerWallet, contract, CONSUMER_CHAIN_ID!);
 
         const ibcConfig = loadIbcConfig();
         const secretGateway = loadContractConfig().gateway!;
-
 
         test('if can see simple ibc-hook msg', async () => {
 
@@ -45,8 +46,8 @@ describe('Gateway contract interaction over IBC', () => {
             expect(response).toBeDefined();
             expect(response.code).toEqual(0);
 
-            
             const non_updated_text = (await queryGatewayAuth(
+                contract,
                 { get_secret: {} },
                 [consumerQCFirst]
             )) as string;
@@ -76,6 +77,7 @@ describe('Gateway contract interaction over IBC', () => {
 
             
             const updated_text = (await queryGatewayAuth(
+                contract,
                 { get_secret: {} },
                 [consumerQCSecond]
             )) as string;

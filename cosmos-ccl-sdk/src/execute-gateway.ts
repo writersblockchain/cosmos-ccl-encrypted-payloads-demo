@@ -1,18 +1,23 @@
 import { getGatewayEncryptionKey, queryGatewayAuth } from './gateway';
 import { consumerClient, consumerWallet } from './clients';
-import { getArb36Credential } from './crypto';
+import { getQueryCredential } from './crypto';
 import { gatewayChachaHookMemo, gatewayHookMemo, sendIBCToken } from './ibc';
 import { loadContractConfig, loadIbcConfig } from './config';
 import dotenv from 'dotenv';
+import { CONSUMER_CHAIN_ID } from './env';
 dotenv.config();
 
 let CONSUMER_TOKEN = process.env.CONSUMER_TOKEN;
 
 const interactWithGatewayContract = async () => {
-    const gatewayKey = await getGatewayEncryptionKey();
+    const contract = loadContractConfig().gateway;
+    if (!contract) { 
+        throw new Error("Gateway contract not found in contract config");
+    }
+    const gatewayKey = await getGatewayEncryptionKey(contract);
 
-    const consumerQCFirst = await getArb36Credential(consumerWallet, "foo");
-    const consumerQCSecond = await getArb36Credential(consumerWallet, "bar");
+    const consumerQCFirst = await getQueryCredential(consumerWallet, contract, CONSUMER_CHAIN_ID!);
+    const consumerQCSecond = await getQueryCredential(consumerWallet, contract, CONSUMER_CHAIN_ID!);
 
     const ibcConfig = loadIbcConfig();
     const secretGateway = loadContractConfig().gateway!;
@@ -34,6 +39,7 @@ const interactWithGatewayContract = async () => {
     console.log("Simple IBC Hook Response:", responseSimple);
 
     const nonUpdatedText = (await queryGatewayAuth(
+        contract,
         { get_secret: {} },
         [consumerQCFirst]
     )) as string;
@@ -59,6 +65,7 @@ const interactWithGatewayContract = async () => {
     console.log("Encrypted IBC Hook Response:", responseEncrypted);
 
     const updatedText = (await queryGatewayAuth(
+        contract,
         { get_secret: {} },
         [consumerQCSecond]
     )) as string;

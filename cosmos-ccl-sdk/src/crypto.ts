@@ -1,27 +1,29 @@
 import { consumerWallet } from "./clients";
 import { chacha20_poly1305_seal, ecdh } from "@solar-republic/neutrino"
 import { concat, json_to_bytes } from "@blake.regalia/belt";
-import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload } from "./types";
+import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload, Contract, DataToSign } from "./types";
 import { getGatewayEncryptionKey } from "./gateway";
-
 
 import { 
   makeSignDoc, OfflineAminoSigner, StdTx, 
   isSecp256k1Pubkey, serializeSignDoc, makeStdTx, StdSignDoc, 
 } from "@cosmjs/amino"
 import { Random, Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto"
-import { fromBase64, toBase64, toAscii } from "@cosmjs/encoding";
+import { fromBase64, toBase64, toAscii, toUtf8 } from "@cosmjs/encoding";
 import { AminoWallet } from "secretjs/dist/wallet_amino";
 
 
+const POPUP_MSG = "Query permit"
+
 
 export const getEncryptedSignedMsg = async (
+  contract        :   Contract,
   signer          :   OfflineAminoSigner | AminoWallet,
   msg             :   GatewayExecuteMsg,
   gatewayKey?     :   string,
 ): Promise<GatewayExecuteMsg> => {
 
-  gatewayKey ??=  await getGatewayEncryptionKey()
+  gatewayKey ??=  await getGatewayEncryptionKey(contract)
 
   const accounts = await signer.getAccounts();
   const firstAccount = accounts[0];
@@ -98,8 +100,8 @@ export const getArb36SignDoc = (
 
 
 export const getArb36Credential = async (
-  signer:   OfflineAminoSigner | AminoWallet,
-  data: string | Uint8Array,
+  signer    :   OfflineAminoSigner | AminoWallet,
+  data      :   string | Uint8Array = POPUP_MSG,
 ) : Promise<CosmosCredential> => {
   const accounts = await signer.getAccounts();
   const firstAccount = accounts[0];
@@ -118,6 +120,42 @@ export const getArb36Credential = async (
 
   return res;
 }
+
+
+export const getQueryCredential = async (
+  signer    :   OfflineAminoSigner | AminoWallet,
+  contract  :   Contract,
+  chain_id  :   string,
+  data      :   string = POPUP_MSG,
+) : Promise<CosmosCredential> => {
+
+  const toSign : DataToSign = {
+    chain_id,
+    contract_address: contract.address,
+    nonce: Random.getBytes(12),
+    data
+  }
+
+  const message = toUtf8(JSON.stringify(toSign));
+  
+  const accounts = await signer.getAccounts();
+  const firstAccount = accounts[0];
+  const signerAddress = firstAccount.address;
+  
+  const signDoc = getArb36SignDoc(signerAddress, message);
+  const signRes = await signer.signAmino(signerAddress, signDoc);
+
+  const res = {
+    signature: signRes.signature.signature,
+    pubkey: signRes.signature.pub_key.value,
+    message: toBase64(message),
+    hrp: firstAccount.address.split("1")[0]
+  }
+
+  return res;
+}
+
+
 
 
 

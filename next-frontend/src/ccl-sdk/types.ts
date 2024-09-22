@@ -38,6 +38,7 @@ export type ContractConfig = {
     sscrt?      :   Contract,
 }
 
+
 export type ContractMultiConfig = {
     secrets   :   Contract;
     votes     :   Contract;
@@ -45,14 +46,11 @@ export type ContractMultiConfig = {
 }
 
 
-
 export type IbcConfig = {
     secret_channel_id : string;
     consumer_channel_id : string;
     ibc_denom : string;
 }
-
-
 
 
 export type TokenData = {
@@ -89,9 +87,16 @@ export type SessionConfig = {
 
 
 
+export type DataToSign = {
+    chain_id: string,
+    contract_address: string,
+    data: string | Uint8Array,
+    nonce: string | Uint8Array
+}
 
 
-export type GatewaySimpleInitMsg = {
+
+export type InitMsg = {
     admin?                   :       string
 }
 

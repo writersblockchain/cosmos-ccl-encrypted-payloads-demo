@@ -120,6 +120,16 @@ export const saveCodeConfig = (config: CodeConfig): void => {
     console.warn("saveCodeConfig: Operation not supported for hardcoded data.");
 };
 
+
+export const saveCodeMultiConfig = (config: CodeMultiConfig): void => {
+    console.warn("saveCodeMultiConfig: Operation not supported for hardcoded data.");
+}
+
+export const saveContractMultiConfig = (config: ContractMultiConfig): void => {
+    console.warn("saveContractMultiConfig: Operation not supported for hardcoded data.");
+}
+
+
 export const saveContractConfig = (config: ContractConfig): void => {
     console.warn("saveContractConfig: Operation not supported for hardcoded data.");
 };
@@ -129,22 +139,9 @@ export const saveIbcConfig = (config: IbcConfig): void => {
 };
 
 // Functions to check if configs exist
-export const codeConfigFileExists = (): boolean => {
-    return true;
-};
-
-export const codeConfigExists = (): boolean => {
-    return Boolean(codeConfig.gateway);
-};
-
-export const contractConfigFileExists = (): boolean => {
-    return true;
-};
-
-export const contractConfigExists = (): boolean => {
-    return Boolean(contractConfig.gateway);
-};
-
-export const ibcConfigExists = (): boolean => {
-    return true;
-};
+export const codeConfigFileExists = (): boolean => (true)
+export const codeMultiConfigExists = (): boolean => (true)
+export const contractConfigFileExists = (): boolean => (true)
+export const ibcConfigExists = (): boolean => (true)
+export const codeConfigExists = (): boolean => (Boolean(codeConfig.gateway))
+export const contractConfigExists = (): boolean => (Boolean(contractConfig.gateway))

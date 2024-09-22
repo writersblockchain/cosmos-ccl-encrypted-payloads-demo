@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ExecuteGateway } from "../functions/Gateway";
+import { loadContractMultiConfig } from '@/ccl-sdk/config';
+import { getGatewayEncryptionKey } from '@/ccl-sdk/gateway';
 
 const EncryptModal = () => {
     const [inputString, setInputString] = useState('');
+    const contract = loadContractMultiConfig().secrets;
+    const [encryptionKey, setEncryptionKey] = useState<string>("");
+    const { store_secret } = ExecuteGateway();
 
-    const { execute_gateway_contract } = ExecuteGateway();
+    useEffect(() => {
+        const fetchEncryptionKey = async () => {
+            const key = await getGatewayEncryptionKey(contract);
+            setEncryptionKey(key);
+        };
+        fetchEncryptionKey();
+    }, [contract]);
+
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (execute_gateway_contract) { // Ensure execute_gateway_contract is defined
-            execute_gateway_contract(inputString);
-        } else {
-            console.error("execute_gateway_contract is not available.");
-        }
+        store_secret(inputString, encryptionKey);
     };
 
     return (

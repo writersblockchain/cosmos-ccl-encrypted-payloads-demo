@@ -3,7 +3,7 @@ import { sha256 } from "@noble/hashes/sha256";
 import { readFileSync, readdirSync } from "fs"
 import { toHex, MsgStoreCodeParams, TxResultCode } from "secretjs"
 import { codeConfigExists, codeConfigFileExists, contractConfigFileExists, loadCodeConfig, loadContractConfig, saveCodeConfig, saveContractConfig } from "./config";
-import { instantiateGatewaySimple } from "./gateway";
+import { instantiateStoredSecrets } from "./gateway";
 import { CodeConfig, ContractConfig } from "./types";
 import { secretClient } from "./clients";
 
@@ -73,6 +73,6 @@ export const instantiateContracts = async () => {
         saveContractConfig(config);
     } */
 
-    config.gateway = await instantiateGatewaySimple();
+    config.gateway = await instantiateStoredSecrets();
     saveContractConfig(config);
 }

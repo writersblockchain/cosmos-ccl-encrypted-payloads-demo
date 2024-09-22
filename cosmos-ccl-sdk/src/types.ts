@@ -1,5 +1,7 @@
 import { AminoMsg } from "@cosmjs/amino";
 import { Permit } from "secretjs";
+import { gen_sk, sk_to_pk } from "@solar-republic/neutrino"
+
 
 export type Code = {
     code_id     :   number;
@@ -20,6 +22,12 @@ export type CodeConfig = {
     snip20?      :   Code;
 }
 
+export type CodeMultiConfig = {
+    secrets?    :   Code;
+    votes?      :   Code;
+    auctions?   :   Code;
+}
+
 export type Contract = {
     address: string,
     hash:    string,
@@ -32,13 +40,18 @@ export type ContractConfig = {
 }
 
 
+export type ContractMultiConfig = {
+    secrets   :   Contract;
+    votes     :   Contract;
+    auctions  :   Contract;
+}
+
+
 export type IbcConfig = {
     secret_channel_id : string;
     consumer_channel_id : string;
     ibc_denom : string;
 }
-
-
 
 
 export type TokenData = {
@@ -77,7 +90,7 @@ export type SessionConfig = {
 
 
 
-export type GatewaySimpleInitMsg = {
+export type InitMsg = {
     admin?                   :       string
 }
 
@@ -96,11 +109,11 @@ export type InnerQueries =
 
 
 
-export type GatewayExecuteMsg = 
+export type GatewayExecuteMsg<E = ExtendedMethods> = 
 
     { reset_encryption_key: {} }         |
 
-    { extension: { msg: ExtendedMethods } }           |
+    { extension: { msg: E } }           |
     
     { encrypted: { 
         payload: string, 
@@ -120,18 +133,18 @@ export type EncryptedPayload = {
     
 
 
-export type GatewayQueryMsg = 
+export type GatewayQueryMsg<I = InnerQueries> = 
 
     { encryption_key: {} }              |
 
     { with_permit: { 
-        query: InnerQueries, 
+        query: I, 
         permit: Permit, 
         hrp?: string 
     }}                                  |
 
     { with_auth_data: { 
-        query: InnerQueries, 
+        query: I, 
         auth_data: CosmosAuthData 
     }}                                  
 
@@ -154,4 +167,33 @@ export interface MsgSignData extends AminoMsg {
       /** data to sign */
       data: string;
     };
-  }
+}
+
+
+
+export class NonceWallet {
+    private private : Uint8Array;
+    private public  : Uint8Array;
+
+    constructor() { 
+        this.private = gen_sk();
+        this.public = sk_to_pk(this.private);
+    }
+
+    get privateKey() {
+        return this.private;
+    }
+
+    get publicKey() {
+        return this.public;
+    }
+}
+
+
+
+export type DataToSign = {
+    chain_id: string,
+    contract_address: string,
+    data: string | Uint8Array,
+    nonce: string | Uint8Array
+}

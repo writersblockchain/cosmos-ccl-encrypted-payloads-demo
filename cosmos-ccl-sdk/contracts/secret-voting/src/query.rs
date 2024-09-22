@@ -69,7 +69,7 @@ pub fn query_inner(
 
 pub fn query_extended(
     deps        :   Deps, 
-    env        :   Env, 
+    env         :   Env, 
     query       :   ExtendedQueries
 ) -> StdResult<Binary> {
     match query {

@@ -87,12 +87,13 @@ export async function gatewayChachaHookMemo<E = ExtendedMethods> (
     wallet:  OfflineAminoSigner | AminoWallet,
     execute_msg : E,
     chainId: string,
-    contract? : Contract,
+    contract : Contract,
     gatewayKey? : string
 )  {
     contract ??= loadContractConfig().gateway!;
 
     const msg = await getEncryptedSignedMsg<E>(
+        contract,
         wallet,
         execute_msg,
         gatewayKey,

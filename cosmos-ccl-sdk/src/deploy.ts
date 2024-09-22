@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const wallet = new Wallet(process.env.SECRET_MNEMONIC as string);
-
 const contract_wasm = fs.readFileSync("./target/wasm32-unknown-unknown/release/gateway_simple.wasm");
+
 
 const secretjs = new SecretNetworkClient({
   chainId: "pulsar-3",

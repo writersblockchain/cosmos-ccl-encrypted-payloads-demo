@@ -1,13 +1,13 @@
 
 use cosmwasm_std::{
-    to_binary, Binary, Deps, Env, StdResult
+    ensure, to_binary, Binary, Deps, Env, StdError, StdResult
 };
 
-use sdk::{common::PERMIT_PREFIX, CosmosAuthData};
+use sdk::{PERMIT_PREFIX, CosmosAuthData};
 //use sdk::{session_key::{SessionKey, SessionKeyStore}, CosmosAuthData};
 use secret_toolkit::permit::Permit;
 
-use crate::{msg::InnerQueries, state::{Proposal, ALL_VOTE_MAP, PROPOSAL_MAP, VOTE_MAP}};
+use crate::{msg::{ExtendedQueries, InnerQueries}, state::{Proposal, ALL_VOTE_MAP, PROPOSAL_MAP, VOTE_MAP}};
 //use shared::{storage::PERMIT_PREFIX, AccoundId};
 
 
@@ -38,9 +38,11 @@ pub fn query_with_auth_data(
     query       :   InnerQueries
 ) -> StdResult<Binary> {
     auth_data.verify(deps.api)?;
-    let address = auth_data.primary_address(deps.api)?;
+    auth_data.check_data(deps.storage, &env)?;
+    let address = auth_data.primary_address()?;
     query_inner(deps, env,address, query)
 }
+
 
 
 
@@ -52,28 +54,6 @@ pub fn query_inner(
 ) -> StdResult<Binary> {
 
     match query {
-        InnerQueries::Proposals {} => {
-            
-            let props  = PROPOSAL_MAP
-                .iter(deps.storage)?
-                .map(|p| Ok(p?.1))
-                .collect::<StdResult<Vec<Proposal>>>()?;
-                
-
-            to_binary(&props)
-        },
-
-        InnerQueries::Proposal { proposal_id} => {
-            let prop = PROPOSAL_MAP
-                .get(deps.storage, &proposal_id);
-            to_binary(&prop)
-        },
-
-        InnerQueries::AllVotes { proposal_id } => {
-            let votes = ALL_VOTE_MAP
-                .get(deps.storage, &proposal_id).unwrap_or_default();
-            to_binary(&votes)
-        },
 
         InnerQueries::MyVote { proposal_id } => {
             let vote = VOTE_MAP
@@ -84,4 +64,43 @@ pub fn query_inner(
 
     }
     
+}
+
+
+pub fn query_extended(
+    deps        :   Deps, 
+    env        :   Env, 
+    query       :   ExtendedQueries
+) -> StdResult<Binary> {
+    match query {
+        ExtendedQueries::Proposals {} => {
+            let props  = PROPOSAL_MAP
+                .iter(deps.storage)?
+                .map(|p| Ok(p?.1))
+                .collect::<StdResult<Vec<Proposal>>>()?;
+
+            to_binary(&props)
+        },
+        ExtendedQueries::Proposal { proposal_id } => {
+            let prop = PROPOSAL_MAP
+                .get(deps.storage, &proposal_id);
+            to_binary(&prop)
+        },
+        ExtendedQueries::AllVotes { proposal_id } => {
+
+            let prop = PROPOSAL_MAP
+                .get(deps.storage, &proposal_id);
+
+            if prop.is_none() {
+                return to_binary(&Vec::<String>::new());
+            }
+
+            let prop = prop.unwrap();
+            ensure!(prop.end_time > env.block.time.seconds(), StdError::generic_err("Can't see votes for ongoing propsoal"));
+
+            let votes = ALL_VOTE_MAP
+                .get(deps.storage, &proposal_id).unwrap_or_default();
+            to_binary(&votes)
+        }
+    }
 }

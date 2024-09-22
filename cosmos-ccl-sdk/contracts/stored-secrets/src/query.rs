@@ -3,11 +3,11 @@ use cosmwasm_std::{
     to_binary, Binary, Deps, Env, StdResult
 };
 
-use sdk::{common::PERMIT_PREFIX, CosmosAuthData};
+use sdk::{PERMIT_PREFIX, CosmosAuthData};
 //use sdk::{session_key::{SessionKey, SessionKeyStore}, CosmosAuthData};
 use secret_toolkit::permit::Permit;
 
-use crate::{state::{SECRETS}, msg::InnerQueries};
+use crate::{state::SECRETS, msg::InnerQueries};
 //use shared::{storage::PERMIT_PREFIX, AccoundId};
 
 
@@ -38,7 +38,7 @@ pub fn query_with_auth_data(
     query       :   InnerQueries
 ) -> StdResult<Binary> {
     auth_data.verify(deps.api)?;
-    let address = auth_data.primary_address(deps.api)?;
+    let address = auth_data.primary_address()?;
     query_inner(deps, env,address, query)
 }
 

@@ -1,3 +1,19 @@
+use cosmwasm_schema::cw_serde;
+
+use cosmwasm_std::Binary;
+
+
+#[cw_serde]
+pub struct SignedData {
+    pub chain_id: String,
+    pub contract_address: String,
+    pub data: Binary,
+}
+
+
+
+
+
 pub fn calculate_future_block_height(current_block_height: u64, minutes_into_future: u64) -> u64 {
     let average_block_time_seconds = 6; // Rounded average block time in seconds for simplification
     let seconds_into_future = minutes_into_future * 60; // Convert minutes into seconds

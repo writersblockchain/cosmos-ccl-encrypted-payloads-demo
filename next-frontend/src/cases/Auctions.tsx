@@ -9,7 +9,7 @@ import { Connector } from "@/components/Connector";
 // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
 
-export const AutctionsCase = () => {
+export const AuctionsCase = () => {
 
   const context = useContext(CosmosjsContext);
   if (!context) {
@@ -40,4 +40,4 @@ export const AutctionsCase = () => {
   );
 }
 
-export default AutctionsCase;
+export default AuctionsCase;

@@ -3,11 +3,11 @@ use cosmwasm_std::{
     ensure, to_binary, Binary, Deps, Env, StdError, StdResult
 };
 
-use sdk::{common::PERMIT_PREFIX, CosmosAuthData};
+use sdk::{PERMIT_PREFIX, CosmosAuthData};
 //use sdk::{session_key::{SessionKey, SessionKeyStore}, CosmosAuthData};
 use secret_toolkit::permit::Permit;
 
-use crate::{error::ContractError, msg::InnerQueries, state::{AuctionItem, ALL_BID_MAP, AUCTION_MAP, BID_MAP}};
+use crate::{error::ContractError, msg::{ExtendedQueries, InnerQueries}, state::{AuctionItem, ALL_BID_MAP, AUCTION_MAP, BID_MAP}};
 //use shared::{storage::PERMIT_PREFIX, AccoundId};
 
 
@@ -38,7 +38,8 @@ pub fn query_with_auth_data(
     query       :   InnerQueries
 ) -> StdResult<Binary> {
     auth_data.verify(deps.api)?;
-    let address = auth_data.primary_address(deps.api)?;
+    auth_data.check_data(deps.storage, &env)?;
+    let address = auth_data.primary_address()?;
     query_inner(deps, env,address, query)
 }
 
@@ -46,13 +47,34 @@ pub fn query_with_auth_data(
 
 pub fn query_inner(
     deps        :   Deps, 
-    env         :   Env, 
+    _env         :   Env, 
     auth_user   :   String,
     query       :   InnerQueries
 ) -> StdResult<Binary> {
 
     match query {
-        InnerQueries::Auctions {} => {
+
+        InnerQueries::MyBid { auction_id } => {
+            let vote = BID_MAP
+                .add_suffix(&auction_id.to_be_bytes())
+                .get(deps.storage, &auth_user);
+            to_binary(&vote)
+        },
+
+    }
+    
+}
+
+
+
+pub fn query_extended(
+    deps        :   Deps, 
+    env         :   Env, 
+    query       :   ExtendedQueries
+) -> StdResult<Binary> {
+
+    match query {
+        ExtendedQueries::Auctions {} => {
             
             let props  = AUCTION_MAP
                 .iter(deps.storage)?
@@ -62,26 +84,27 @@ pub fn query_inner(
             to_binary(&props)
         },
 
-        InnerQueries::Auction { auction_id } => {
+        ExtendedQueries::Auction { auction_id } => {
             let prop = AUCTION_MAP
                 .get(deps.storage, &auction_id);
             to_binary(&prop)
         },
 
-        InnerQueries::AllBids { auction_id } => {
+
+        ExtendedQueries::AllBids { auction_id } => {
+            let auction = AUCTION_MAP
+                .get(deps.storage, &auction_id);
+            ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));
+
+            let auction = auction.unwrap();
+            ensure!(auction.end_time >= env.block.height, StdError::generic_err("Not finished yet"));
+            
             let votes = ALL_BID_MAP
                 .get(deps.storage, &auction_id).unwrap_or_default();
             to_binary(&votes)
         },
 
-        InnerQueries::MyBid { auction_id } => {
-            let vote = BID_MAP
-                .add_suffix(&auction_id.to_be_bytes())
-                .get(deps.storage, &auth_user);
-            to_binary(&vote)
-        },
-
-        InnerQueries::Result { auction_id } => {
+        ExtendedQueries::Result { auction_id } => {
             let auction = AUCTION_MAP
                 .get(deps.storage, &auction_id);
             ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { QueryGateway } from "../functions/Gateway";
+import { ExecuteGateway, QueryGateway } from "../functions/Gateway";
 import { Proposal } from '@/utils/types';
 import { CosmosjsContext } from '@/utils/CosmosContext';
 
@@ -19,6 +19,7 @@ const ProposalstModal = () => {
         { name: 'Proposal 2', description: 'Description 2', end_time: '2021-09-02', proposal_id: 2 },
     ]);
 
+    const { create_proposal, vote_proposal } = ExecuteGateway();
     const { query_proposals, query_my_vote } = QueryGateway();
 
     // Fetch proposals
@@ -55,6 +56,16 @@ const ProposalstModal = () => {
 
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        setSubmitting(true);
+        create_proposal(title, description)
+        .then(() => {
+            setTitle('');
+            setDescription('');
+        })
+        .catch((e) => console.error(e))
+        .finally(() => setSubmitting(false));
+
         /* if (query_gateway_contract) { // Ensure execute_gateway_contract is defined
             setSubmitting(true);
             query_gateway_contract(title)

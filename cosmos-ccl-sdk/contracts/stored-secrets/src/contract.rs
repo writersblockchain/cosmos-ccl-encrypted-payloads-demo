@@ -4,7 +4,7 @@ use cosmwasm_std::{
 };
 
 
-use sdk::common::{ENCRYPTING_WALLET, BLOCK_SIZE};
+use sdk::{ENCRYPTING_WALLET, BLOCK_SIZE};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result};
 
 
@@ -33,7 +33,7 @@ pub fn instantiate(
         .unwrap_or(info.sender.clone())
     )?;
 
-    sdk::common::reset_encryption_wallet(
+    sdk::reset_encryption_wallet(
         deps.api, deps.storage, &env.block, None, None
     )?;
 
@@ -52,7 +52,7 @@ pub fn execute(
     let (
         msg, 
         info
-    ) = sdk::common::handle_encrypted_wrapper(
+    ) = sdk::handle_encrypted_wrapper(
         deps.api, deps.storage, info, msg
     )?;
 
@@ -61,7 +61,7 @@ pub fn execute(
         ExecuteMsg::ResetEncryptionKey {  } => {
             let admin = ADMIN.load(deps.storage)?;
             ensure!(admin == info.sender, ContractError::Unauthorized {});
-            sdk::common::reset_encryption_wallet(
+            sdk::reset_encryption_wallet(
                 deps.api, deps.storage, &env.block, None, None
             )?;
             Ok(Response::default())

@@ -2,15 +2,15 @@
 use cosmwasm_std::entry_point;
 
 use cosmwasm_std::{
-    ensure, to_binary, Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult
+    ensure, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult
 };
 
 
-use sdk::common::{ENCRYPTING_WALLET, BLOCK_SIZE};
+use sdk::{ENCRYPTING_WALLET, BLOCK_SIZE};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result};
 
 
-use crate::query;
+use crate::query::{self, query_extended};
 use crate::state::{AuctionItem, BidItem, ALL_BID_MAP, AUCTION_COUNT, AUCTION_MAP, BID_MAP};
 use crate::error::ContractError;
 use crate::msg::{InnerMethods, QueryMsg};
@@ -36,7 +36,7 @@ pub fn instantiate(
         .unwrap_or(info.sender.clone())
     )?;
 
-    sdk::common::reset_encryption_wallet(
+    sdk::reset_encryption_wallet(
         deps.api, deps.storage, &env.block, None, None
     )?;
 
@@ -56,7 +56,7 @@ pub fn execute(
     let (
         msg, 
         info
-    ) = sdk::common::handle_encrypted_wrapper(
+    ) = sdk::handle_encrypted_wrapper(
         deps.api, deps.storage, info, msg
     )?;
 
@@ -65,7 +65,7 @@ pub fn execute(
         ExecuteMsg::ResetEncryptionKey {  } => {
             let admin = ADMIN.load(deps.storage)?;
             ensure!(admin == info.sender, ContractError::Unauthorized {});
-            sdk::common::reset_encryption_wallet(
+            sdk::reset_encryption_wallet(
                 deps.api, deps.storage, &env.block, None, None
             )?;
             Ok(Response::default())
@@ -146,7 +146,9 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
         QueryMsg::EncryptionKey {} =>  to_binary(&ENCRYPTING_WALLET.load(deps.storage)?.public_key),
 
-        QueryMsg::Extension { .. } =>  to_binary(&Empty {}),
+        QueryMsg::Extension { 
+            query 
+        } =>  query_extended(deps, env, query),
 
         _ => {
             match msg {

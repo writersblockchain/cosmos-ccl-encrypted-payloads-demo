@@ -1,10 +1,10 @@
 use cosmwasm_std::{
     entry_point, DepsMut, Env, MessageInfo,
-    ensure, Response, Deps, StdResult, Binary, to_binary, Empty,
+    ensure, Response, Deps, StdResult, Binary, to_binary,
 };
 
 
-use sdk::common::{ENCRYPTING_WALLET, BLOCK_SIZE};
+use sdk::{ENCRYPTING_WALLET, BLOCK_SIZE};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result};
 
 
@@ -34,7 +34,7 @@ pub fn instantiate(
         .unwrap_or(info.sender.clone())
     )?;
 
-    sdk::common::reset_encryption_wallet(
+    sdk::reset_encryption_wallet(
         deps.api, deps.storage, &env.block, None, None
     )?;
 
@@ -54,7 +54,7 @@ pub fn execute(
     let (
         msg, 
         info
-    ) = sdk::common::handle_encrypted_wrapper(
+    ) = sdk::handle_encrypted_wrapper(
         deps.api, deps.storage, info, msg
     )?;
 
@@ -63,7 +63,7 @@ pub fn execute(
         ExecuteMsg::ResetEncryptionKey {  } => {
             let admin = ADMIN.load(deps.storage)?;
             ensure!(admin == info.sender, ContractError::Unauthorized {});
-            sdk::common::reset_encryption_wallet(
+            sdk::reset_encryption_wallet(
                 deps.api, deps.storage, &env.block, None, None
             )?;
             Ok(Response::default())
@@ -143,7 +143,9 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
         QueryMsg::EncryptionKey {} =>  to_binary(&ENCRYPTING_WALLET.load(deps.storage)?.public_key),
 
-        QueryMsg::Extension { .. } =>  to_binary(&Empty {}),
+        QueryMsg::Extension { 
+            query 
+        } =>  query::query_extended(deps, env, query),
 
         _ => {
             match msg {

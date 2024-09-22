@@ -13,8 +13,10 @@ import { CodeConfig, CodeMultiConfig, ContractConfig, ContractMultiConfig, IbcCo
 //Secret mainnet
 const codeConfig: CodeConfig = {
     gateway: {
-        code_id: 1799,
-        code_hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+        /* code_id: 1799,
+        code_hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e" */
+        code_id: 1940,
+        code_hash: "245fde8f319d3d7ac4a038435192dbddec196e9bed23e07f906ea30b184fc28b"
     }
 };
 
@@ -27,36 +29,50 @@ const codeConfig: CodeConfig = {
 // };
 
 //Secret mainnet
-const contractConfig: ContractConfig = {
-    gateway: {
-        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
-        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
-    }
-};
 
 
 const codeMultiConfig: CodeMultiConfig = {
+    auctions: {
+        code_id: 1938,
+        code_hash: "9418039da258a045baa254211488176f22dee652a92651642a132514e51629b9",
+    },
+
+    votes: {
+        code_id: 1939,
+        code_hash: "b4f37968d95462292c044ecd99a4cecfec6c1f7f9a9954366231c3000e5038ef",
+    },
+
     secrets: {
-        code_id: 1799,
-        code_hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+        code_id: 1940,
+        code_hash: "245fde8f319d3d7ac4a038435192dbddec196e9bed23e07f906ea30b184fc28b"
+    },
+};
+
+
+
+const contractConfig: ContractConfig = {
+    gateway: {
+        address: "secret1md6xaernnpu04swp4erhn5x8vsv0ehnv2l9myj",
+        hash: "245fde8f319d3d7ac4a038435192dbddec196e9bed23e07f906ea30b184fc28b"
     }
 };
 
-const contractMultiConfig: ContractMultiConfig = {
-    secrets: {
-        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
-        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
-    },
 
-    // to update:
+
+
+const contractMultiConfig: ContractMultiConfig = {
     auctions: {
-        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
-        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
+        address: "secret1aymz04cw7dmxr3hfumtreltdpmey7apw66cufz",
+        hash: "9418039da258a045baa254211488176f22dee652a92651642a132514e51629b9"
     },
     votes: {
-        address: "secret1ftsnjw3nc7zkr0lngc7h3af7d9gqyzf5syn0cu",
-        hash: "83fdee3ad26ca8849a837b70ac25bd704e0aaab76b97dcc13c0125ddccbd956e"
-    }
+        address: "secret1m3ul6whcg5xuzkqzg747wc3hakhejvpfaxrfc5",
+        hash: "b4f37968d95462292c044ecd99a4cecfec6c1f7f9a9954366231c3000e5038ef"
+    },
+    secrets: {
+        address: "secret1md6xaernnpu04swp4erhn5x8vsv0ehnv2l9myj",
+        hash: "245fde8f319d3d7ac4a038435192dbddec196e9bed23e07f906ea30b184fc28b"
+    },
 };
 
 //Axelar testnet config

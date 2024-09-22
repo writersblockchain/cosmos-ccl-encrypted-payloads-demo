@@ -8,10 +8,22 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version    = "0.2.0"
+version    = "0.3.0"
 edition    = "2021"
 authors    = [ "Kromsten <kromstens@megarock.app>" ]
 repository = ""
+
+
+[workspace.profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
 
 
 [workspace.dependencies]

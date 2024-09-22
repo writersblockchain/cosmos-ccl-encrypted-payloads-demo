@@ -76,9 +76,7 @@ pub fn query_extended(
         ExtendedQueries::Proposals {} => {
             let props  = PROPOSAL_MAP
                 .iter(deps.storage)?
-                .map(|p| Ok(p?.1))
-                .collect::<StdResult<Vec<Proposal>>>()?;
-
+                .collect::<StdResult<Vec<(u64, Proposal)>>>()?;
             to_binary(&props)
         },
         ExtendedQueries::Proposal { proposal_id } => {

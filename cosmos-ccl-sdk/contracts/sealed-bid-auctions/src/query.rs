@@ -78,8 +78,7 @@ pub fn query_extended(
             
             let props  = AUCTION_MAP
                 .iter(deps.storage)?
-                .map(|p| Ok(p?.1))
-                .collect::<StdResult<Vec<AuctionItem>>>()?;
+                .collect::<StdResult<Vec<(u64, AuctionItem)>>>()?;
 
             to_binary(&props)
         },

@@ -62,9 +62,8 @@ const ExecuteGateway = () => {
       return await (execute_gateway_contract(contract, msg));
   };
 
-  const create_proposal = async (name: string, description: string, end_time?: string) => {
+  const create_proposal = async (name: string, description: string, end_time: string = "60") => {
       const contract = contractConfig.votes;
-      //end_time ??= new Date().toISOString();
       const msg = { create_proposal: { name, description, end_time } }
       return await (execute_gateway_contract(contract, msg));
   }
@@ -75,9 +74,8 @@ const ExecuteGateway = () => {
       return await (execute_gateway_contract(contract, msg));
   }
 
-  const create_auction = async (name: string, description: string, end_time?: string) => {
+  const create_auction = async (name: string, description: string, end_time: string = "60") => {
       const contract = contractConfig.auctions;
-      //end_time ??= new Date().toISOString();
       const msg = { create_auction_item: { name, description, end_time } }
       return await (execute_gateway_contract(contract, msg));
   }
@@ -131,7 +129,7 @@ const QueryGateway = () => {
         const toSign : DataToSign = {
           chain_id: chainId!,
           contract_address: contract.address,
-          nonce: Random.getBytes(12),
+          nonce: toBase64(Random.getBytes(32)),
           data
         }
         const message = toUtf8(JSON.stringify(toSign));

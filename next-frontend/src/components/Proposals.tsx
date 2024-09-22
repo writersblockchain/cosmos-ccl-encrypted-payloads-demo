@@ -35,7 +35,10 @@ const ProposalstModal = () => {
 
     // Fetch user's vote
     useEffect(() => {
-        if (selectedProposal) {
+        console.log("selectedProposal", selectedProposal)
+        console.log("all proposals", proposals)
+        
+        if (selectedProposal && selectedProposal.proposal_id) {
             query_my_vote(selectedProposal.proposal_id)
             .then((data) => {
                 console.log("vote data:", data)
@@ -56,7 +59,6 @@ const ProposalstModal = () => {
 
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         setSubmitting(true);
         create_proposal(title, description)
         .then(() => {
@@ -64,7 +66,9 @@ const ProposalstModal = () => {
             setDescription('');
         })
         .catch((e) => console.error(e))
-        .finally(() => setSubmitting(false));
+        .finally(() => {
+            setSubmitting(false);
+        });
 
         /* if (query_gateway_contract) { // Ensure execute_gateway_contract is defined
             setSubmitting(true);
@@ -105,7 +109,7 @@ const ProposalstModal = () => {
                                 >
                                     <div className='flex justify-between w-full'>
                                         <h6 className="font-bold">{proposal.name}</h6>
-                                        <p>{proposal.end_time}</p>
+                                        {/* <p>{proposal.end_time}</p> */}
                                     </div>
                                     <p>{proposal.description}</p>
                                 </button>

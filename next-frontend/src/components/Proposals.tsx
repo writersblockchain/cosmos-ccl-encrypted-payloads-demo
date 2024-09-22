@@ -14,10 +14,8 @@ const ProposalstModal = () => {
     const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
     const [selectedVote, setSelectedVote] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
-    const [proposals, setProposals] = useState<Proposal[]>([
-        { name: 'Proposal 1', description: 'Description 1', end_time: '2021-09-01', proposal_id: 1 },
-        { name: 'Proposal 2', description: 'Description 2', end_time: '2021-09-02', proposal_id: 2 },
-    ]);
+    const [existingVote, setExistingVote] = useState<string | null>(null);
+    const [proposals, setProposals] = useState<Proposal[]>([]);
 
     const { create_proposal, vote_proposal } = ExecuteGateway();
     const { query_proposals, query_my_vote } = QueryGateway();
@@ -28,22 +26,23 @@ const ProposalstModal = () => {
         .then((data) => {
             console.log('query props data', data);
             if (data && Array.isArray(data)) {
-                setProposals(data);
+                setProposals(data.map(([id, p]: [number, Proposal]) => ({ ...p, proposal_id: id })));
             }
         })
     }, [chainId, keplrAddress]);
 
     // Fetch user's vote
     useEffect(() => {
-        console.log("selectedProposal", selectedProposal)
-        console.log("all proposals", proposals)
-        
         if (selectedProposal && selectedProposal.proposal_id) {
             query_my_vote(selectedProposal.proposal_id)
             .then((data) => {
                 console.log("vote data:", data)
-                if (typeof data === "object" && "vote" in data) {
-                    setSelectedVote(data.vote);
+                if (data && typeof data === "object" && "vote" in data) {
+                    // capitalize first letter
+                    const vote = (data.vote as string);
+                    const formatted = vote.charAt(0).toUpperCase() + vote.slice(1);
+                    setExistingVote(formatted);
+                    setSelectedVote(formatted);
                 }
             });
         }
@@ -69,18 +68,22 @@ const ProposalstModal = () => {
         .finally(() => {
             setSubmitting(false);
         });
-
-        /* if (query_gateway_contract) { // Ensure execute_gateway_contract is defined
-            setSubmitting(true);
-            query_gateway_contract(title)
-            .finally(() => setSubmitting(false));
-        } else {
-            console.error("execute_gateway_contract is not available.");
-        } */
     };
 
     const handleVote = (vote: string) => {
-        console.log('vote', vote);
+        setSubmitting(true);
+        let parsedVote; 
+        if (vote.toLowerCase().startsWith("no") && vote.length > 2) {
+            parsedVote = "no_with_veto";
+        } else {
+            parsedVote = vote.toLowerCase();
+        }
+        vote_proposal(selectedProposal!.proposal_id!.toString(), parsedVote)
+        .then(() => {
+            setExistingVote(vote);
+            setSelectedVote(vote);
+        })
+        .finally(() => setSubmitting(false));
 
        /*  if (query_gateway_contract) { 
             setSubmitting(true);
@@ -138,6 +141,12 @@ const ProposalstModal = () => {
                                 >
                                     Vote
                                 </button>
+                            </div>
+                        )}
+
+                        {existingVote && (
+                            <div className="my-2 flex justify-center text-brand-orange">
+                                You have already voted: {existingVote}
                             </div>
                         )}
 

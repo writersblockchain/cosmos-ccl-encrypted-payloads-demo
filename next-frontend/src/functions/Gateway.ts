@@ -68,7 +68,7 @@ const ExecuteGateway = () => {
       return await (execute_gateway_contract(contract, msg));
   }
 
-  const vote_proposal = async (proposal_id: number, vote: string) => {
+  const vote_proposal = async (proposal_id: string, vote: string) => {
       const contract = contractConfig.votes;
       const msg = { vote: { proposal_id, vote } }
       return await (execute_gateway_contract(contract, msg));
@@ -127,10 +127,10 @@ const QueryGateway = () => {
         credential = JSON.parse(queryPermitStored) as CosmosCredential;
       } else {
         const toSign : DataToSign = {
-          chain_id: chainId!,
+          chain_id: "secret-4",
           contract_address: contract.address,
           nonce: toBase64(Random.getBytes(32)),
-          data
+          data: btoa(data)
         }
         const message = toUtf8(JSON.stringify(toSign));
         const signRes = await (window as any).keplr.signArbitrary(chainId, keplrAddress!, JSON.stringify(toSign))
@@ -160,7 +160,7 @@ const QueryGateway = () => {
     return query_contract_auth(contractConfig.secrets, { get_secret: { }}) as Promise<string>;
   }
 
-  const query_proposals = () : Promise<Proposal[]>  => {
+  const query_proposals = () : Promise<[number, Proposal][]>  => {
     return query_contract_public(contractConfig.votes, { extension: { query: { proposals: { } } } });
   }
 

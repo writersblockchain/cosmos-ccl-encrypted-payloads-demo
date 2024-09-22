@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "GatewayQueryMsg_for_InnerQueries_and_CosmosAuthData_for_String_and_Nullable_Empty",
+  "title": "GatewayQueryMsg_for_InnerQueries_and_CosmosAuthData_for_Binary_and_ExtendedQueries",
   "oneOf": [
     {
       "type": "object",
@@ -29,7 +29,7 @@
           ],
           "properties": {
             "auth_data": {
-              "$ref": "#/definitions/CosmosAuthData_for_String"
+              "$ref": "#/definitions/CosmosAuthData_for_Binary"
             },
             "query": {
               "$ref": "#/definitions/InnerQueries"
@@ -79,16 +79,12 @@
       "properties": {
         "extension": {
           "type": "object",
+          "required": [
+            "query"
+          ],
           "properties": {
             "query": {
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Empty"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "$ref": "#/definitions/ExtendedQueries"
             }
           },
           "additionalProperties": false
@@ -102,7 +98,7 @@
       "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
       "type": "string"
     },
-    "CosmosAuthData_for_String": {
+    "CosmosAuthData_for_Binary": {
       "description": "Utllty wrapper for cosmos authentication data Adopted from [Smart-Account-Auth](https://github.com/MegaRockLabs/smart-account-auth/blob/main/packages/bundle/src/data.rs#L17) library",
       "type": "object",
       "required": [
@@ -113,7 +109,7 @@
           "description": "Public key corresponding to the user's secret key used for signing.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/CosmosCredential_for_String"
+            "$ref": "#/definitions/CosmosCredential_for_Binary"
           }
         },
         "primary_index": {
@@ -128,7 +124,7 @@
       },
       "additionalProperties": false
     },
-    "CosmosCredential_for_String": {
+    "CosmosCredential_for_Binary": {
       "description": "Utllty wrapper for cosmos credential Adopted from [Smart-Account-Auth](https://github.com/MegaRockLabs/smart-account-auth/blob/main/packages/bundle/src/credential.rs#L12) library",
       "type": "object",
       "required": [
@@ -144,7 +140,11 @@
         },
         "message": {
           "description": "signed inner message before being wrapped with 036",
-          "type": "string"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Binary"
+            }
+          ]
         },
         "pubkey": {
           "description": "public key matching the secret key used to sign transactions",
@@ -165,11 +165,7 @@
       },
       "additionalProperties": false
     },
-    "Empty": {
-      "description": "An empty struct that serves as a placeholder in different places, such as contracts that don't set a custom message.\n\nIt is designed to be expressable in correct JSON and JSON Schema but contains no meaningful data. Previously we used enums without cases, but those cannot represented as valid JSON Schema (https://github.com/CosmWasm/cosmwasm/issues/451)",
-      "type": "object"
-    },
-    "InnerQueries": {
+    "ExtendedQueries": {
       "oneOf": [
         {
           "type": "object",
@@ -210,10 +206,10 @@
         {
           "type": "object",
           "required": [
-            "my_vote"
+            "all_votes"
           ],
           "properties": {
-            "my_vote": {
+            "all_votes": {
               "type": "object",
               "required": [
                 "proposal_id"
@@ -229,14 +225,18 @@
             }
           },
           "additionalProperties": false
-        },
+        }
+      ]
+    },
+    "InnerQueries": {
+      "oneOf": [
         {
           "type": "object",
           "required": [
-            "all_votes"
+            "my_vote"
           ],
           "properties": {
-            "all_votes": {
+            "my_vote": {
               "type": "object",
               "required": [
                 "proposal_id"
@@ -282,7 +282,8 @@
         "permit_name": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "PermitSignature": {
       "type": "object",
@@ -297,7 +298,8 @@
         "signature": {
           "$ref": "#/definitions/Binary"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Permit_for_TokenPermissions": {
       "type": "object",
@@ -312,7 +314,8 @@
         "signature": {
           "$ref": "#/definitions/PermitSignature"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "PubKey": {
       "type": "object",
@@ -333,7 +336,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "TokenPermissions": {
       "oneOf": [

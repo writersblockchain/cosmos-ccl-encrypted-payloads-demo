@@ -19,8 +19,6 @@ interface CosmosjsContextProps {
 
 const CosmosjsContext = createContext<CosmosjsContextProps | null>(null);
 
-const OSMOSIS_CHAIN_ID = "osmosis-1";
-// const OSMOSIS_LCD = "https://rpc.osmosis.zone:443";
 
 interface CosmosjsContextProviderProps {
   children: ReactNode;
@@ -50,16 +48,6 @@ const rpcFromChainId = (chainId: string | string[]) => {
   }
 }
 
-export const secretChannelIdFromChainId = (chainId: string | string[]) => {
-  chainId = typeof chainId === "string" ? chainId : chainId[0];
-  if (chainId === "osmosis-1") {
-    return "channel-0";
-  } else if (chainId === "cosmoshub-4") {
-    return "channel-0";
-  } else {
-    return process.env.NEXT_PUBLIC_CONSUMER_CHANNEL_ID!;
-  }
-}
 
 const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => {
   const [cosmosjs, setCosmosjs] = useState<SigningStargateClient | null>(null);
@@ -114,7 +102,8 @@ const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => 
               process.env.NEXT_PUBLIC_CONSUMER_GAS_PRICE ?? "0.25", 
               process.env. NEXT_PUBLIC_CONSUMER_DECIMALS ? Number(process.env.NEXT_PUBLIC_CONSUMER_DECIMALS) : 6
           ) }
-        });
+        }
+    );
     setKeplrAddress(keplrAddress);
     setCosmosjs(consumerClient);
     setOfflineSigner(keplrOfflineSigner);

@@ -11,7 +11,6 @@ import { Proposal } from '@/utils/types';
 
 
 
-
 const ExecuteGateway = () => {
   const context = useContext(CosmosjsContext);
 

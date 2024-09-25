@@ -22,19 +22,28 @@ const AuctionstModal = () => {
 
     // Fetch proposals
     useEffect(() => {
+        setSelectedAuction(null);
+
         query_auctions()
         .then((data) => {
             console.log('query props data', data);
             if (data && Array.isArray(data)) {
                 setAuctions(data.map(([id, p]: [number, Auction]) => ({ ...p, auction_id: id })));
+            } else {
+                setAuctions([]);
             }
         })
+        .catch((e) => {
+            setAuctions([]);
+            console.error(e);
+        });
     }, [chainId, keplrAddress]);
 
 
     // Fetch user's bud
     useEffect(() => {
-        if (selectedAuction && selectedAuction.auction_id) {
+        setExistingBid(null);
+        if (selectedAuction?.auction_id) {
             query_my_bid(selectedAuction.auction_id)
             .then((data) => {
                 console.log("bid data:", data)

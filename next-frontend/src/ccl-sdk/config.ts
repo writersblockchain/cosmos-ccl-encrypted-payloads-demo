@@ -58,8 +58,6 @@ const contractConfig: ContractConfig = {
 };
 
 
-
-
 const contractMultiConfig: ContractMultiConfig = {
     auctions: {
         address: "secret1feeat5t3tqg72hha9nstpapc3q7hqhqskrn4m3",
@@ -74,6 +72,7 @@ const contractMultiConfig: ContractMultiConfig = {
         hash: "245fde8f319d3d7ac4a038435192dbddec196e9bed23e07f906ea30b184fc28b"
     },
 };
+
 
 //Axelar testnet config
 // const ibcConfig: IbcConfig = {
@@ -96,6 +95,7 @@ const cosmoConfig: IbcConfig = {
     ibc_denom: "ibc/TODO"
 };
 
+
 // Functions to get the config data
 export const loadCodeConfig = (): CodeConfig => {
     return codeConfig;
@@ -107,6 +107,7 @@ export const loadContractConfig = (): ContractConfig => {
 
 
 export const loadCodeMultiConfig = (): CodeMultiConfig => (codeMultiConfig)
+
 export const loadContractMultiConfig = (): ContractMultiConfig => (contractMultiConfig)
 
 

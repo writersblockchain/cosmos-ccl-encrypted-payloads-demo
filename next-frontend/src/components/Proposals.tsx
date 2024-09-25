@@ -22,17 +22,27 @@ const ProposalstModal = () => {
 
     // Fetch proposals
     useEffect(() => {
+        setSelectedProposal(null);
+
         query_proposals()
         .then((data) => {
             console.log('query props data', data);
             if (data && Array.isArray(data)) {
                 setProposals(data.map(([id, p]: [number, Proposal]) => ({ ...p, proposal_id: id })));
+            } else {
+                setProposals([]);
             }
+        }).catch((e) => {
+            console.log(e);
+            setProposals([]);
         })
+
     }, [chainId, keplrAddress]);
 
     // Fetch user's vote
     useEffect(() => {
+        setSelectedVote(null);
+        
         if (selectedProposal && selectedProposal.proposal_id) {
             query_my_vote(selectedProposal.proposal_id)
             .then((data) => {
@@ -49,12 +59,6 @@ const ProposalstModal = () => {
     }, [keplrAddress, selectedProposal]);
 
     
-    // reset votes on proposal change
-    useEffect(() => {
-        setSelectedVote(null);
-    }, [selectedProposal]);
-
-
 
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

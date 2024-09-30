@@ -12,7 +12,7 @@ const ProposalstModal = () => {
   
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [endTime, setEndTime] = useState('');
+    const [endTime, setEndTime] = useState<string | number>();
 
     const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
     const [selectedVote, setSelectedVote] = useState<string | null>(null);
@@ -79,7 +79,7 @@ const ProposalstModal = () => {
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSubmitting(true);
-        create_proposal(title, description, endTime.toString())
+        create_proposal(title, description, endTime ? endTime.toString() : undefined)
         .then(() => {
             setTitle('');
             setDescription('');

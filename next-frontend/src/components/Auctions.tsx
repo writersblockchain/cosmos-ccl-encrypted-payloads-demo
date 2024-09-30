@@ -12,7 +12,7 @@ const AuctionstModal = () => {
   
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [endTime, setEndTime] = useState('');
+    const [endTime, setEndTime] = useState<string | number>();
 
     const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
     const [amount, setAmount] = useState<string>("");
@@ -25,7 +25,7 @@ const AuctionstModal = () => {
     const { create_auction, bid_auction } = ExecuteGateway();
     const { query_auctions, query_my_bid, query_auction_result } = QueryGateway();
 
-    // Fetch proposals
+    // Fetch auctions
     useEffect(() => {
         setSelectedAuction(null);
 
@@ -46,7 +46,7 @@ const AuctionstModal = () => {
             } else {
                 setAuctions([]);
             }
-            data.forEach(([id, p]: [number, Auction]) => {
+            /* data.forEach(([id, p]: [number, Auction]) => {
                 query_auction_result(id)
                 .then((data) => {
                     console.log('query auction result data', data);
@@ -54,7 +54,7 @@ const AuctionstModal = () => {
                 .catch((e) => {
                     console.error(e);
                 });
-            });
+            }); */
         })
         .catch((e) => {
             setAuctions([]);
@@ -79,7 +79,7 @@ const AuctionstModal = () => {
     }, [keplrAddress, selectedAuction]);
 
     
-    // reset bids on proposal change
+    // reset ammount on auction change
     useEffect(() => {
         setAmount("");
     }, [selectedAuction]);
@@ -89,8 +89,8 @@ const AuctionstModal = () => {
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSubmitting(true);
-        console.log('creating auction', title, description);
-        create_auction(title, description, endTime.toString())
+        console.log('creating auction', title,  endTime ? endTime.toString() : undefined);
+        create_auction(title, description, endTime ? endTime.toString() : undefined)
         .then(() => {
             setTitle('');
             setDescription('');
@@ -210,7 +210,7 @@ const AuctionstModal = () => {
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Write a description of the proposal"
+                                placeholder="Write a description of the auction"
                                 required
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />

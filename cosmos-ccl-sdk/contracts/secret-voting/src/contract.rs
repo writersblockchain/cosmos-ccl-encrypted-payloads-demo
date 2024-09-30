@@ -76,7 +76,7 @@ pub fn execute(
                     description, 
                     end_time 
                 } => {
-                    let end_time = calculate_future_block_height(
+                    let end_block = calculate_future_block_height(
                         env.block.height, 
                         end_time.u64()
                     );
@@ -91,7 +91,7 @@ pub fn execute(
                         &Proposal {
                             name, 
                             description, 
-                            end_time,
+                            end_block,
                             creator: info.sender.to_string()
                         }
                     )?;
@@ -107,7 +107,7 @@ pub fn execute(
                     ensure!(proposal.is_some(), ContractError::NotFound {});
 
                     let proposal = proposal.unwrap();
-                    ensure!(env.block.height <= proposal.end_time, ContractError::Expired {});
+                    ensure!(env.block.height <= proposal.end_block, ContractError::Expired {});
 
                     let proposal_id = proposal_id.u64();
                     let vote = Vote { vote, proposal_id };

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ExecuteGateway, QueryGateway } from "../functions/Gateway";
 import { Proposal } from '@/utils/types';
 import { CosmosjsContext } from '@/utils/CosmosContext';
+import { secretClient } from '@/ccl-sdk/clients';
 
 const ProposalstModal = () => {
     const context = useContext(CosmosjsContext);
@@ -16,9 +17,13 @@ const ProposalstModal = () => {
     const [submitting, setSubmitting] = useState(false);
     const [existingVote, setExistingVote] = useState<string | null>(null);
     const [proposals, setProposals] = useState<Proposal[]>([]);
+    
+    const [secretBlock, setSecretBlock] = useState<{ height: number, time: string}>({ height: 0, time: "" });
+
 
     const { create_proposal, vote_proposal } = ExecuteGateway();
     const { query_proposals, query_my_vote } = QueryGateway();
+
 
     // Fetch proposals
     useEffect(() => {
@@ -35,6 +40,15 @@ const ProposalstModal = () => {
         }).catch((e) => {
             console.log(e);
             setProposals([]);
+        })
+
+        secretClient.query.tendermint.getLatestBlock({ })
+        .then((data) => {
+            console.log('latest props block', data);
+            setSecretBlock({
+                height: Number(data.block?.header?.height ?? ""),
+                time: (data.block?.header?.time as string) ?? ""
+            });
         })
 
     }, [chainId, keplrAddress]);

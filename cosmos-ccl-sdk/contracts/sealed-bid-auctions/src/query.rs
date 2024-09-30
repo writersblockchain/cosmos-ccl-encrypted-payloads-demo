@@ -1,13 +1,13 @@
 
 use cosmwasm_std::{
-    ensure, to_binary, Binary, Deps, Env, StdError, StdResult
+    ensure, to_binary, Binary, Deps, Env, StdError, StdResult, Storage
 };
 
 use sdk::{PERMIT_PREFIX, CosmosAuthData};
 //use sdk::{session_key::{SessionKey, SessionKeyStore}, CosmosAuthData};
 use secret_toolkit::permit::Permit;
 
-use crate::{error::ContractError, msg::{ExtendedQueries, InnerQueries}, state::{AuctionItem, ALL_BID_MAP, AUCTION_MAP, BID_MAP}};
+use crate::{error::ContractError, msg::{ExtendedQueries, InnerQueries}, state::{AuctionItem, BidItem, ALL_BID_MAP, AUCTION_MAP, BID_MAP}};
 //use shared::{storage::PERMIT_PREFIX, AccoundId};
 
 
@@ -78,6 +78,20 @@ pub fn query_extended(
             
             let props  = AUCTION_MAP
                 .iter(deps.storage)?
+                .map(|res| {
+                    let pair = res?;
+                    let item = AuctionItem {
+                        name: pair.1.name,
+                        description: pair.1.description,
+                        end_block: pair.1.end_block,
+                        result: if pair.1.end_block < env.block.height {
+                            None
+                        } else {
+                            get_winning_bid(deps.storage, pair.0)?
+                        }
+                    };
+                    Ok((pair.0, item))
+                })
                 .collect::<StdResult<Vec<(u64, AuctionItem)>>>()?;
 
             to_binary(&props)
@@ -96,7 +110,7 @@ pub fn query_extended(
             ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));
 
             let auction = auction.unwrap();
-            ensure!(auction.end_time >= env.block.height, StdError::generic_err("Not finished yet"));
+            ensure!(auction.end_block >= env.block.height, StdError::generic_err("Not finished yet"));
             
             let votes = ALL_BID_MAP
                 .get(deps.storage, &auction_id).unwrap_or_default();
@@ -109,22 +123,29 @@ pub fn query_extended(
             ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));
 
             let auction = auction.unwrap();
-            ensure!(auction.end_time >= env.block.height, StdError::generic_err("Not finished yet"));
+            ensure!(auction.end_block >= env.block.height, StdError::generic_err("Not finished yet"));
 
-            let bids = ALL_BID_MAP
-                .get(deps.storage, &auction_id).unwrap_or_default();
-            
-            let mut winner = None;
-            let mut max = 0;
-            for bid in bids {
-                if bid.amount > max {
-                    max = bid.amount;
-                    winner = Some(bid);
-                }
-            }
+            let winner = get_winning_bid(deps.storage, auction_id)?;
             to_binary(&winner)
         }
 
     }
     
+}
+
+
+fn get_winning_bid(
+    storage: &dyn Storage, 
+    auction_id  :   u64
+) -> StdResult<Option<BidItem>> {
+    let bids = ALL_BID_MAP.get(storage, &auction_id).unwrap_or_default();
+    let mut winner = None;
+    let mut max = 0;
+    for bid in bids {
+        if bid.amount > max {
+            max = bid.amount;
+            winner = Some(bid);
+        }
+    }
+    Ok(winner)
 }

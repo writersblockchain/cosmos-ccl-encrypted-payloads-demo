@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ExecuteGateway, QueryGateway } from "../functions/Gateway";
 import { Auction } from '@/utils/types';
 import { CosmosjsContext } from '@/utils/CosmosContext';
+import { secretClient } from '@/ccl-sdk/clients';
 
 const AuctionstModal = () => {
     const context = useContext(CosmosjsContext);
@@ -17,26 +18,46 @@ const AuctionstModal = () => {
     const [existingBid, setExistingBid] = useState<string | null>(null);
     const [auctions, setAuctions] = useState<Auction[]>([]);
 
+    const [secretBlock, setSecretBlock] = useState<{ height: number, time: string}>({ height: 0, time: "" });
+
     const { create_auction, bid_auction } = ExecuteGateway();
-    const { query_auctions, query_my_bid } = QueryGateway();
+    const { query_auctions, query_my_bid, query_auction_result } = QueryGateway();
 
     // Fetch proposals
     useEffect(() => {
         setSelectedAuction(null);
 
+        secretClient.query.tendermint.getLatestBlock({ })
+        .then((data) => {
+            setSecretBlock({
+                height: Number(data.block?.header?.height ?? ""),
+                time: (data.block?.header?.time as string) ?? ""
+            });
+        })
+
         query_auctions()
         .then((data) => {
-            console.log('query props data', data);
+            console.log('query all auctions data', data);
             if (data && Array.isArray(data)) {
                 setAuctions(data.map(([id, p]: [number, Auction]) => ({ ...p, auction_id: id })));
             } else {
                 setAuctions([]);
             }
+            data.forEach(([id, p]: [number, Auction]) => {
+                query_auction_result(id)
+                .then((data) => {
+                    console.log('query auction result data', data);
+                })
+                .catch((e) => {
+                    console.error(e);
+                });
+            });
         })
         .catch((e) => {
             setAuctions([]);
             console.error(e);
         });
+
     }, [chainId, keplrAddress]);
 
 
@@ -55,7 +76,7 @@ const AuctionstModal = () => {
     }, [keplrAddress, selectedAuction]);
 
     
-    // reset buds on proposal change
+    // reset bids on proposal change
     useEffect(() => {
         setAmount("");
     }, [selectedAuction]);
@@ -104,7 +125,9 @@ const AuctionstModal = () => {
                                 >
                                     <div className='flex justify-between w-full'>
                                         <h6 className="font-bold">{auction.name}</h6>
-                                        {/* <p>{proposal.end_time}</p> */}
+                                        {/* { secretBlock.height && secretBlock.time && (
+                                            <span className="text-sm">Ends at: {secretBlock.height - auction.end_block} blocks</span>
+                                        )} */}
                                     </div>
                                     <p>{auction.description}</p>
                                 </button>

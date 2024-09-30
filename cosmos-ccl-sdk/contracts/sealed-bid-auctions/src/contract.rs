@@ -11,7 +11,7 @@ use secret_toolkit::utils::{pad_handle_result, pad_query_result};
 
 
 use crate::query::{self, query_extended};
-use crate::state::{AuctionItem, BidItem, ALL_BID_MAP, AUCTION_COUNT, AUCTION_MAP, BID_MAP};
+use crate::state::{BidItem, StoredAuctionItem, ALL_BID_MAP, AUCTION_COUNT, AUCTION_MAP, BID_MAP};
 use crate::error::ContractError;
 use crate::msg::{InnerMethods, QueryMsg};
 use crate::utils::calculate_future_block_height;
@@ -78,21 +78,18 @@ pub fn execute(
                     description, 
                     end_time 
                 } => {
-                    let end_time = calculate_future_block_height(
+                    let end_block = calculate_future_block_height(
                         env.block.height, 
                         end_time.u64()
                     );
-
-                    let auction_item = AuctionItem {
+                    let auction_item = StoredAuctionItem {
                         name,
                         description,
-                        end_time
+                        end_block,
                     };
                     
                     let auction_id = AUCTION_COUNT.load(deps.storage)? + 1;
-
                     AUCTION_COUNT.save(deps.storage, &auction_id)?;
-
                     AUCTION_MAP.insert(deps.storage, &auction_id,  &auction_item)?;
                     
                     Ok(Response::default())
@@ -106,7 +103,7 @@ pub fn execute(
                     ensure!(auction.is_some(), ContractError::NotFound {});
 
                     let auction = auction.unwrap();
-                    ensure!(env.block.height <= auction.end_time, ContractError::Expired {});
+                    ensure!(env.block.height <= auction.end_block, ContractError::Expired {});
 
                     let auction_id = auction_id.u64();
                     let vote = BidItem { 

@@ -168,7 +168,7 @@ const QueryGateway = () => {
   } 
 
   const query_auction_result = (auction_id: number) => {
-    return query_contract_public(contractConfig.auctions, { extension: { query: { auction_result: { auction_id } } } });
+    return query_contract_public(contractConfig.auctions, { extension: { query: { result: { auction_id } } } });
   }
 
 

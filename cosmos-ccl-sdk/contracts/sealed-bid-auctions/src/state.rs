@@ -6,7 +6,7 @@ use secret_toolkit::storage::Keymap;
 
 
 pub static ADMIN             :    Item<Addr>              =    Item::new(b"admin");
-pub static AUCTION_MAP: Keymap<u64, AuctionItem> = Keymap::new(b"AUCTION_MAP");
+pub static AUCTION_MAP: Keymap<u64, StoredAuctionItem> = Keymap::new(b"AUCTION_MAP");
 
 
 pub static AUCTION_COUNT: Item<u64> = Item::new(b"ACOUNT");
@@ -19,8 +19,18 @@ pub static ALL_BID_MAP: Keymap<u64, Vec<BidItem>> = Keymap::new(b"ABID_MAP");
 pub struct AuctionItem {
     pub name: String,
     pub description: String,
-    pub end_time: u64,
+    pub end_block: u64,
+    pub result: Option<BidItem>,
 }
+
+
+#[cw_serde]
+pub struct StoredAuctionItem {
+    pub name: String,
+    pub description: String,
+    pub end_block: u64,
+}
+
 
 
 #[cw_serde]

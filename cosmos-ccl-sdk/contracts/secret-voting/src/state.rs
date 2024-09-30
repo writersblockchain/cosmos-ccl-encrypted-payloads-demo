@@ -15,7 +15,7 @@ pub struct Proposal {
     pub name: String,
     pub description: String,
     pub creator: String,
-    pub end_time: u64,
+    pub end_block: u64,
 }
 
 

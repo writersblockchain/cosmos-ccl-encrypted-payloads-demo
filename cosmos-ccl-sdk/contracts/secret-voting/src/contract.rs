@@ -107,6 +107,7 @@ pub fn execute(
                     ensure!(proposal.is_some(), ContractError::NotFound {});
 
                     let proposal = proposal.unwrap();
+                    
                     ensure!(env.block.height <= proposal.end_block, ContractError::Expired {});
 
                     let proposal_id = proposal_id.u64();

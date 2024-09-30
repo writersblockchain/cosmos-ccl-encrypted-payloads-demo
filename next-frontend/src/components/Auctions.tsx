@@ -12,6 +12,8 @@ const AuctionstModal = () => {
   
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [endTime, setEndTime] = useState('');
+
     const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
     const [amount, setAmount] = useState<string>("");
     const [submitting, setSubmitting] = useState(false);
@@ -29,6 +31,7 @@ const AuctionstModal = () => {
 
         secretClient.query.tendermint.getLatestBlock({ })
         .then((data) => {
+            console.log('auctions: latest block data', data);
             setSecretBlock({
                 height: Number(data.block?.header?.height ?? ""),
                 time: (data.block?.header?.time as string) ?? ""
@@ -39,7 +42,7 @@ const AuctionstModal = () => {
         .then((data) => {
             console.log('query all auctions data', data);
             if (data && Array.isArray(data)) {
-                setAuctions(data.map(([id, p]: [number, Auction]) => ({ ...p, auction_id: id })));
+                setAuctions(data.map(([id, p]: [number, Auction]) => ({ ...p, auction_id: id })).reverse());
             } else {
                 setAuctions([]);
             }
@@ -87,7 +90,7 @@ const AuctionstModal = () => {
         e.preventDefault();
         setSubmitting(true);
         console.log('creating auction', title, description);
-        create_auction(title, description)
+        create_auction(title, description, endTime.toString())
         .then(() => {
             setTitle('');
             setDescription('');
@@ -119,15 +122,27 @@ const AuctionstModal = () => {
                             {auctions.map((auction, index) => (
                                 <button 
                                     key={index} 
-                                    disabled={auction === selectedAuction}
+                                    disabled={Boolean(auction.result) || (secretBlock.height > auction.end_block)}
                                     onClick={() => setSelectedAuction(auction)}
-                                    className="flex flex-col  border-2 rounded-lg p-2 border-brand-orange hover:border-brand-blue hover:text-brand-blue disabled:border-red-200 disabled:text-red-200"
+                                    className={(auction === selectedAuction ? "border-brand-blue"  :  "border-brand-orange")
+                                         +  " hover:border-brand-blue hover:text-brand-blue disabled:border-red-200 disabled:text-red-200 flex flex-col  border-2 rounded-lg p-2"}
                                 >
                                     <div className='flex justify-between w-full'>
                                         <h6 className="font-bold">{auction.name}</h6>
-                                        {/* { secretBlock.height && secretBlock.time && (
-                                            <span className="text-sm">Ends at: {secretBlock.height - auction.end_block} blocks</span>
-                                        )} */}
+
+                                        {
+                                            Boolean(auction.result) || (secretBlock.height > auction.end_block) 
+                                            ? ( 
+                                                <span className="text-sm">
+                                                    Ended: { auction.result?.amount ?? "0" }$
+                                                </span>
+                                            )
+                                            :  (
+                                                <span className="text-sm">
+                                                    Ends at: { (new Date(Date.now() + (auction.end_block - secretBlock.height) * 6000)).toLocaleString() } 
+                                                </span>
+                                            )
+                                        }
                                     </div>
                                     <p>{auction.description}</p>
                                 </button>
@@ -197,6 +212,18 @@ const AuctionstModal = () => {
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Write a description of the proposal"
                                 required
+                                className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
+                            />
+                        </div>
+                        <div className='my-2'>
+                            <label className="block text-sm font-medium leading-6 w-full">
+                                End Time  (Optional)
+                            </label>
+                            <input
+                                type="number"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                                placeholder="Minutes until the end (Default: 60)"
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />
                         </div>

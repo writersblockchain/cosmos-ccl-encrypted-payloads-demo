@@ -94,7 +94,7 @@ pub fn query_extended(
             }
 
             let prop = prop.unwrap();
-            ensure!(prop.end_block > env.block.time.seconds(), StdError::generic_err("Can't see votes for ongoing propsoal"));
+            ensure!(env.block.height >= prop.end_block, StdError::generic_err("Can't see votes for ongoing propsoal"));
 
             let votes = ALL_VOTE_MAP
                 .get(deps.storage, &proposal_id).unwrap_or_default();

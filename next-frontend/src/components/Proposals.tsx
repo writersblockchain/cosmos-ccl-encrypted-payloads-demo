@@ -12,6 +12,8 @@ const ProposalstModal = () => {
   
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [endTime, setEndTime] = useState('');
+
     const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
     const [selectedVote, setSelectedVote] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -77,7 +79,7 @@ const ProposalstModal = () => {
     const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSubmitting(true);
-        create_proposal(title, description)
+        create_proposal(title, description, endTime.toString())
         .then(() => {
             setTitle('');
             setDescription('');
@@ -102,14 +104,6 @@ const ProposalstModal = () => {
             setSelectedVote(vote);
         })
         .finally(() => setSubmitting(false));
-
-       /*  if (query_gateway_contract) { 
-            setSubmitting(true);
-            query_gateway_contract(vote)
-            .finally(() => setSubmitting(false));
-        } else {
-            console.error("execute_gateway_contract is not available.");
-        } */
     }
 
     return (
@@ -122,15 +116,25 @@ const ProposalstModal = () => {
 
                         <div className="flex flex-col space-y-2 mt-2 gap-2">
                             {proposals.map((proposal, index) => (
-                                <button 
+                               
+                               <button 
                                     key={index} 
-                                    disabled={proposal === selectedProposal}
+                                    disabled={secretBlock.height >= proposal.end_block}
                                     onClick={() => setSelectedProposal(proposal)}
-                                    className="flex flex-col  border-2 rounded-lg p-2 border-brand-orange hover:border-brand-blue hover:text-brand-blue disabled:border-red-200 disabled:text-red-200"
+                                    className={(proposal === selectedProposal ? "border-brand-blue"  :  "border-brand-orange")
+                                         +  " hover:border-brand-blue hover:text-brand-blue disabled:border-red-200 disabled:text-red-200 flex flex-col  border-2 rounded-lg p-2"}
                                 >
+
                                     <div className='flex justify-between w-full'>
                                         <h6 className="font-bold">{proposal.name}</h6>
-                                        {/* <p>{proposal.end_time}</p> */}
+                                        <span className="text-sm">
+                                        {(secretBlock.height != 0 && secretBlock.height < proposal.end_block) 
+                                            ? <>
+                                                Ends at: { (new Date(Date.now() + (proposal.end_block - secretBlock.height) * 6000)).toLocaleString() } 
+                                                </>
+                                            : "Ended"
+                                        }
+                                        </span>
                                     </div>
                                     <p>{proposal.description}</p>
                                 </button>
@@ -197,6 +201,18 @@ const ProposalstModal = () => {
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Write a description of the proposal"
                                 required
+                                className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
+                            />
+                        </div>
+                        <div className='my-2'>
+                            <label className="block text-sm font-medium leading-6 w-full">
+                                End Time  (Optional)
+                            </label>
+                            <input
+                                type="number"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                                placeholder="Minutes until the end (Default: 60)"
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />
                         </div>

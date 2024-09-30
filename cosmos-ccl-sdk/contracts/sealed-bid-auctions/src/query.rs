@@ -84,7 +84,7 @@ pub fn query_extended(
                         name: pair.1.name,
                         description: pair.1.description,
                         end_block: pair.1.end_block,
-                        result: if pair.1.end_block < env.block.height {
+                        result: if env.block.height < pair.1.end_block {
                             None
                         } else {
                             get_winning_bid(deps.storage, pair.0)?
@@ -110,7 +110,7 @@ pub fn query_extended(
             ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));
 
             let auction = auction.unwrap();
-            ensure!(auction.end_block >= env.block.height, StdError::generic_err("Not finished yet"));
+            ensure!(env.block.height >= auction.end_block, StdError::generic_err("Not finished yet"));
             
             let votes = ALL_BID_MAP
                 .get(deps.storage, &auction_id).unwrap_or_default();
@@ -123,7 +123,7 @@ pub fn query_extended(
             ensure!(auction.is_some(), StdError::generic_err(ContractError::NotFound {}.to_string()));
 
             let auction = auction.unwrap();
-            ensure!(auction.end_block >= env.block.height, StdError::generic_err("Not finished yet"));
+            ensure!(env.block.height >= auction.end_block, StdError::generic_err("Not finished yet"));
 
             let winner = get_winning_bid(deps.storage, auction_id)?;
             to_binary(&winner)

@@ -43,13 +43,13 @@ const contractConfig: ContractConfig = {
 
 const codeMultiConfig: CodeMultiConfig = {
     auctions: {
-        code_id: 1947,
-        code_hash: "a13b240e7f056b47c517efaa5163c97fe2d7eab72dec8a7a135124f5c25c4996",
+        code_id: 1948,
+        code_hash: "453ab9ce4e41d7530fae64bab28c4e472ebbcb7f05a87ee3627021ecb8416d3a",
     },
 
     votes: {
-        code_id: 1946,
-        code_hash: "7218f5b192fe746933b3e827c1e8e263a8799437eeeb12b93c6b636bb2ed0ef3",
+        code_id: 1949,
+        code_hash: "ff8443878e8a339637c45c13abc4385c4f0c5668b992afc912e5f59e5d098654",
     },
 
     secrets: {
@@ -62,12 +62,12 @@ const codeMultiConfig: CodeMultiConfig = {
 
 const contractMultiConfig: ContractMultiConfig = {
     auctions: {
-        address: "secret1rhcrzj3t27x25h8cw42cakjkltss5qyksajjtp",
-        hash: "a13b240e7f056b47c517efaa5163c97fe2d7eab72dec8a7a135124f5c25c4996"
+        address: "secret1xn5e623kqht0u84tmvljfkdrdm4spkrsaeczax",
+        hash: "453ab9ce4e41d7530fae64bab28c4e472ebbcb7f05a87ee3627021ecb8416d3a"
     },
     votes: {
-        address: "secret1dkvpnkmxj2yfqfdxx4fcpywpws5khqussc2w6u",
-        hash: "7218f5b192fe746933b3e827c1e8e263a8799437eeeb12b93c6b636bb2ed0ef3"
+        address: "secret1jtc7f8cj5hhc2mg9v5uknd84knvythvsjhd66a",
+        hash: "ff8443878e8a339637c45c13abc4385c4f0c5668b992afc912e5f59e5d098654"
     },
     secrets: {
         address: "secret1md6xaernnpu04swp4erhn5x8vsv0ehnv2l9myj",

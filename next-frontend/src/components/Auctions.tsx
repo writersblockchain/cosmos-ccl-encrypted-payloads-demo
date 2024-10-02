@@ -23,7 +23,7 @@ const AuctionstModal = () => {
     const [secretBlock, setSecretBlock] = useState<{ height: number, time: string}>({ height: 0, time: "" });
 
     const { create_auction, bid_auction } = ExecuteGateway();
-    const { query_auctions, query_my_bid, query_auction_result } = QueryGateway();
+    const { query_auctions, query_my_bid } = QueryGateway();
 
     // Fetch auctions
     useEffect(() => {

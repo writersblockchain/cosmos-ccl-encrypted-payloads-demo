@@ -19,6 +19,7 @@ export type Bid = {
     bidder: string;
 }
 
+
 export type Auction = {
     auction_id: number;
     name: string;

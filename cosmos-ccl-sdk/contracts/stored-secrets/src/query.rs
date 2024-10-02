@@ -38,6 +38,7 @@ pub fn query_with_auth_data(
     query       :   InnerQueries
 ) -> StdResult<Binary> {
     auth_data.verify(deps.api)?;
+    auth_data.check_data(deps.storage, &env)?;
     let address = auth_data.primary_address()?;
     query_inner(deps, env,address, query)
 }
@@ -60,3 +61,5 @@ pub fn query_inner(
     }
     
 }
+
+

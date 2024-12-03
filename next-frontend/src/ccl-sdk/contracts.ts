@@ -2,9 +2,9 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { readFileSync, readdirSync } from "fs"
 import { toHex, MsgStoreCodeParams, TxResultCode } from "secretjs"
-import { codeConfigExists, codeConfigFileExists, contractConfigFileExists, loadCodeConfig, loadContractConfig, saveCodeConfig, saveContractConfig } from "./config";
-import { instantiateGatewaySimple } from "./gateway";
-import { CodeConfig, ContractConfig } from "./types";
+import { codeConfigExists, codeConfigFileExists, loadCodeMultiConfig, saveCodeMultiConfig, saveContractMultiConfig } from "./config";
+import { instantiateExamples } from "./gateway";
+import { CodeMultiConfig, ContractMultiConfig } from "./types";
 import { secretClient } from "./clients";
 
 
@@ -13,10 +13,12 @@ export const uploadContracts = async (
 ) => {
     console.log("Uploading contracts...");
 
-    const config : CodeConfig = codeConfigFileExists() ? loadCodeConfig() : {};
+    const config : CodeMultiConfig = codeConfigFileExists() ? loadCodeMultiConfig() : {};
 
     for (const file of readdirSync(wasmDirPath).filter(f => f.includes(".wasm"))) {
-        if (file.includes("gateway") && Boolean(config.gateway)) continue;
+        if (file.includes("secrets") && Boolean(config.secrets)) continue;
+        if (file.includes("votes") && Boolean(config.votes)) continue;
+        if (file.includes("auctions") && Boolean(config.auctions)) continue;
 
         console.log(`Uploading contract: ${file}`);
 
@@ -44,16 +46,20 @@ export const uploadContracts = async (
             code_hash: codeHash
         }
 
-        if (file.includes("gateway")) {
-            config.gateway = contract
+        if (file.includes("secrets")) {
+            config.secrets = contract
         }
         
 
-        if (file.includes("snip20")) {
-            config.snip20 = contract
+        if (file.includes("votes")) {
+            config.votes = contract
+        }
+
+        if (file.includes("auctions")) {
+            config.auctions = contract
         }
        
-        saveCodeConfig(config);
+        saveCodeMultiConfig(config);
     }
 
     if (!codeConfigExists()) {
@@ -63,16 +69,12 @@ export const uploadContracts = async (
 }
 
 export const instantiateContracts = async () => {
-    const config : ContractConfig = contractConfigFileExists() 
-            ? loadContractConfig() 
-            : {  };
     
-    /* if (!Boolean(config.sscrt)) {
-        config.sscrt = await instantiateSnip20("Secret SCRT", "sSCRT", SECRET_TOKEN!);
-        await sleep(1000);
-        saveContractConfig(config);
-    } */
-
-    config.gateway = await instantiateGatewaySimple();
-    saveContractConfig(config);
+    const res = await instantiateExamples();
+    const config : ContractMultiConfig = {
+        secrets: res[0],
+        votes: res[1],
+        auctions: res[2]
+    }
+    saveContractMultiConfig(config);
 }

@@ -6,7 +6,7 @@ export const {
     SECRET_TOKEN,
     CONSUMER_MNEMONIC,
     CONSUMER_CHAIN_ENDPOINT,
-    CONSUMER_CHAIN_ID,
+    CONSUMER_CHAIN_ID = "osmosis-1",
     CONSUMER_TOKEN,
     CONSUMER_PREFIX
 } = process.env

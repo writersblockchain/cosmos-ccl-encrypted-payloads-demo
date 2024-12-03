@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use cosmwasm_std::{ensure, Api, StdError, StdResult};
+use cosmwasm_std::{ensure, ensure_eq,  Api, StdError, StdResult, from_binary, Storage, Env,};
 
 use crate::{
     crypto::{verify_arbitrary, pubkey_to_address}, 
@@ -10,7 +10,7 @@ use crate::{
 
 impl<M : Display> CosmosCredential<M> {
 
-    pub fn address(&self, _ : &dyn Api) -> StdResult<String> {
+    pub fn address(&self) -> StdResult<String> {
         let addr = pubkey_to_address(&self.pubkey, &self.hrp)?;
         Ok(addr)
     }
@@ -54,8 +54,8 @@ impl CosmosAuthData {
     }
 
 
-    pub fn primary_address(&self, api: &dyn Api) -> StdResult<String> {
-        self.primary().address(api)
+    pub fn primary_address(&self) -> StdResult<String> {
+        self.primary().address()
     }
 
 
@@ -81,8 +81,24 @@ impl CosmosAuthData {
     }
     
 
-    pub fn secondary_addresses(&self, api: &dyn Api) -> StdResult<Vec<String>> {
-        self.secondaries().iter().map(|c| c.address(api)).collect()
+    pub fn secondary_addresses(&self) -> StdResult<Vec<String>> {
+        self.secondaries().iter().map(|c| c.address()).collect()
+    }
+
+    #[cfg(feature = "common")]
+    pub fn check_data(
+        &self, 
+        storage: &dyn Storage,
+        env: &Env,
+    ) -> StdResult<()> {
+        use crate::{DataToSign, NONCES};
+        for cred in self.credentials.iter() {
+            let data : DataToSign = from_binary(&cred.message)?;
+            ensure_eq!(data.chain_id, env.block.chain_id, StdError::generic_err("Chain ID mismatch"));
+            ensure_eq!(data.contract_address, env.contract.address, StdError::generic_err("Contract address mismatch"));
+            ensure!(!NONCES.contains(storage, &data.nonce.0), StdError::generic_err("Nonce already used"));
+        }
+        Ok(())
     }
 }
 

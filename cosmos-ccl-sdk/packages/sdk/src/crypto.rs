@@ -38,7 +38,7 @@ pub fn pubkey_to_canonical(pubkey: &[u8]) -> CanonicalAddr {
 /// and human readable prefix.
 pub fn verify_arbitrary<M : Display>(api:  &dyn Api, cred: &CosmosCredential<M>) -> StdResult<String> {
     
-    let address = cred.address(api)?;
+    let address = cred.address()?;
 
     let digest = sha_256(
         &preamble_msg_arb_036(

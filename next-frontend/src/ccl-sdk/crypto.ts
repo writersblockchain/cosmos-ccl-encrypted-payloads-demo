@@ -7,21 +7,25 @@ import {
 import { AminoWallet } from "secretjs/dist/wallet_amino";
 import { getNonceWallet } from "./clients";
 import { concat, json_to_bytes } from "@blake.regalia/belt";
-import { fromBase64, toBase64, toAscii } from "@cosmjs/encoding";
+import { fromBase64, toBase64, toAscii, toUtf8 } from "@cosmjs/encoding";
 import { chacha20_poly1305_seal, ecdh } from "@solar-republic/neutrino"
 import { Random, Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto"
-import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload } from "./types";
+import { CosmosCredential, MsgSignData, GatewayExecuteMsg, EncryptedPayload, ExtendedMethods, Contract, DataToSign } from "./types";
 import { getGatewayEncryptionKey } from "./gateway";
 
 
+const POPUP_MSG = "Query permit"
 
-export const getEncryptedSignedMsg = async (
+
+export async function getEncryptedSignedMsg<E = ExtendedMethods>  (
+  contract        :   Contract,
   signer          :   OfflineAminoSigner | AminoWallet,
-  msg             :   GatewayExecuteMsg,
+  msg             :   E,
   gatewayKey?     :   string,
-): Promise<GatewayExecuteMsg> => {
+  chainId?        :   string,
+): Promise<GatewayExecuteMsg> {
 
-  gatewayKey ??=  await getGatewayEncryptionKey()
+  gatewayKey ??=  await getGatewayEncryptionKey(contract)
 
   const accounts = await signer.getAccounts();
   const firstAccount = accounts[0];
@@ -33,7 +37,6 @@ export const getEncryptedSignedMsg = async (
   const nonceBase64      =  toBase64(nonce);
   const gatewayKeyBytes  =  fromBase64(gatewayKey);
 
-
   const nonceWallet = await getNonceWallet(nonceBase64);
   
   const sharedKey : Uint8Array =  sha256(
@@ -44,7 +47,7 @@ export const getEncryptedSignedMsg = async (
     user_address: signerAddress,
     user_pubkey: toBase64(signerPubkey),
     hrp: signerAddress.split("1")[0],
-    msg: toBase64(json_to_bytes(msg))
+    msg: toBase64(json_to_bytes(msg as any))
   }
 
 
@@ -58,7 +61,7 @@ export const getEncryptedSignedMsg = async (
 
   const signDoc = getArb36SignDoc(signerAddress, ciphertextHash);
   const signRes = await (window as any).keplr?.signAmino(
-    "osmosis-1",
+    chainId,
     signerAddress, 
     signDoc,
   );
@@ -114,6 +117,40 @@ export const getArb36Credential = async (
   const signerAddress = firstAccount.address;
   
   const message = typeof data === "string" ? toAscii(data) : data;
+  const signDoc = getArb36SignDoc(signerAddress, message);
+  const signRes = await signer.signAmino(signerAddress, signDoc);
+
+  const res = {
+    signature: signRes.signature.signature,
+    pubkey: signRes.signature.pub_key.value,
+    message: toBase64(message),
+    hrp: firstAccount.address.split("1")[0]
+  }
+
+  return res;
+}
+
+
+export const getQueryCredential = async (
+  signer    :   OfflineAminoSigner | AminoWallet,
+  contract  :   Contract,
+  chain_id  :   string,
+  data      :   string = POPUP_MSG,
+) : Promise<CosmosCredential> => {
+
+  const toSign : DataToSign = {
+    chain_id,
+    contract_address: contract.address,
+    nonce: Random.getBytes(12),
+    data
+  }
+
+  const message = toUtf8(JSON.stringify(toSign));
+  
+  const accounts = await signer.getAccounts();
+  const firstAccount = accounts[0];
+  const signerAddress = firstAccount.address;
+  
   const signDoc = getArb36SignDoc(signerAddress, message);
   const signRes = await signer.signAmino(signerAddress, signDoc);
 

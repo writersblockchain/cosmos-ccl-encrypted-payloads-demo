@@ -1,10 +1,13 @@
 pub mod types;
 pub mod crypto;
-pub mod common;
 pub mod traits;
 pub mod funds;
+mod common;
 mod inner;
 
+
+#[cfg(feature = "common")]
+pub use common::*;
 
 #[cfg(feature = "gateway")]
 pub mod gateway;
@@ -12,7 +15,7 @@ pub mod gateway;
 
 use std::fmt::Display;
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::Binary;
+use cosmwasm_std::{Addr, Binary};
 
 
 
@@ -20,7 +23,7 @@ use cosmwasm_std::Binary;
 /// Utllty wrapper for cosmos credential
 /// Adopted from [Smart-Account-Auth](https://github.com/MegaRockLabs/smart-account-auth/blob/main/packages/bundle/src/credential.rs#L12) library
 #[cw_serde]
-pub struct CosmosCredential<M = String> 
+pub struct CosmosCredential<M = Binary> 
     where M: Display
 {
     /// public key matching the secret key used to sign transactions
@@ -39,7 +42,7 @@ pub struct CosmosCredential<M = String>
 /// Utllty wrapper for cosmos authentication data
 /// Adopted from [Smart-Account-Auth](https://github.com/MegaRockLabs/smart-account-auth/blob/main/packages/bundle/src/data.rs#L17) library
 #[cw_serde]
-pub struct CosmosAuthData<M = String> 
+pub struct CosmosAuthData<M = Binary> 
     where M: Display
 {
     /// Public key corresponding to the user's secret key used for signing.
@@ -81,4 +84,19 @@ pub struct EncryptedParams {
     pub user_key           :   Binary,
     /// One-time nonce used for chacha20_poly1305 encryption
     pub nonce              :   Binary,
+}
+
+
+
+
+#[cw_serde]
+pub struct DataToSign {
+    /// Chain ID for which the data is being signed
+    pub chain_id: String,
+    /// Contract address for which the data is being signed
+    pub contract_address: Addr,
+    /// Data to be signed
+    pub data: Binary,
+    /// Nonce used for signing
+    pub nonce: Binary,
 }

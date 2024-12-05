@@ -13,10 +13,10 @@ import AuctionstModal from "@/components/Auctions";
 export const AuctionsCase = () => {
 
   const context = useContext(CosmosjsContext);
+
   if (!context) {
     return null; // Handle the case when context is null
   }
-
 
   return (
       <>

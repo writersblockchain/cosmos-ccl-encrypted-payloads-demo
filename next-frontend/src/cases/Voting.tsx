@@ -8,14 +8,12 @@ import ProposalstModal from "@/components/Proposals";
 
 // export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
-
 export const VotingCase = () => {
 
   const context = useContext(CosmosjsContext);
   if (!context) {
     return null; // Handle the case when context is null
   }
-
 
   return (
       <>

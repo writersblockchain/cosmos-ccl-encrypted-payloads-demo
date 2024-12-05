@@ -1,12 +1,10 @@
 "use client";
 import { createContext, useState, useEffect, ReactNode } from "react";
-// import { SecretNetworkClient } from "secretjs";
-//
-import { SigningStargateClient } from "@cosmjs/stargate"
+import { SigningStargateClient } from "@cosmjs/stargate";
 import { Decimal } from "@cosmjs/math";
 
 interface CosmosjsContextProps {
-  cosmosjs: SigningStargateClient| null;
+  cosmosjs: SigningStargateClient | null;
   chainId: string;
   keplrAddress: string;
   token: string;
@@ -16,7 +14,6 @@ interface CosmosjsContextProps {
 }
 
 const CosmosjsContext = createContext<CosmosjsContextProps | null>(null);
-
 
 interface CosmosjsContextProviderProps {
   children: ReactNode;
@@ -32,7 +29,7 @@ const tokenFromChainId = (chainId: string | string[]) => {
   } else {
     return process.env.NEXT_PUBLIC_CONSUMER_TOKEN!;
   }
-}
+};
 
 const rpcFromChainId = (chainId: string | string[]) => {
   chainId = typeof chainId === "string" ? chainId : chainId[0];
@@ -44,39 +41,38 @@ const rpcFromChainId = (chainId: string | string[]) => {
   } else {
     return process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ENDPOINT!;
   }
-}
-
+};
 
 const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => {
   const [cosmosjs, setCosmosjs] = useState<SigningStargateClient | null>(null);
   const [keplrAddress, setKeplrAddress] = useState<string>("");
-  const [offlineSigner, setOfflineSigner] = useState<string>("");
+  const [offlineSigner, setOfflineSigner] = useState<any>(null);  // Change this type to any since it's from window
   const [chainId, setChainId] = useState<string>(process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID!);
 
   const token = tokenFromChainId(chainId);
-  /* console.log("chid:", chainId, tokenFromChainId(chainId))
-  const [token, setToken] = useState<string>(tokenFromChainId(chainId)); */
-  console.log("token:", token)
 
   useEffect(() => {
     const autoConnect = localStorage.getItem("keplrAutoConnect");
     if (autoConnect === "true") {
       connectWallet(chainId);
     }
-  }, []);
+  }, [chainId]);
 
+  // Make sure this code only runs on the client-side
   async function setupKeplr(chainId: string | string[] = process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID ?? "") {
+    // Make sure window is available before using it
+    if (typeof window === "undefined") {
+      console.error("Window is not defined. This must be run in a client-side context.");
+      return;
+    }
+
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    while (
-      !(window as any).keplr ||
-      !(window as any).getEnigmaUtils ||
-      !(window as any).getOfflineSignerOnlyAmino
-    ) {
+    // Wait for Keplr to be loaded in the window object
+    while (!(window as any).keplr || !(window as any).getEnigmaUtils || !(window as any).getOfflineSignerOnlyAmino) {
       await sleep(50);
     }
 
-    
     await (window as any).keplr.enable(chainId);
     (window as any).keplr.defaultOptions = {
       sign: {
@@ -85,36 +81,38 @@ const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => 
       },
     };
 
- let keplrOfflineSigner = (window as any).getOfflineSignerOnlyAmino(chainId);
+    let keplrOfflineSigner = (window as any).getOfflineSignerOnlyAmino(chainId);
     const accounts = await keplrOfflineSigner.getAccounts();
- let keplrAddress = accounts[0].address;
-console.log(keplrAddress)
-  
+    let keplrAddress = accounts[0].address;
+    console.log(keplrAddress);
 
     let consumerClient = await SigningStargateClient.connectWithSigner(
-      rpcFromChainId(chainId), 
+      rpcFromChainId(chainId),
       keplrOfflineSigner,
-      { gasPrice: { 
-          denom:  token, 
+      {
+        gasPrice: {
+          denom: token,
           amount: Decimal.fromUserInput(
-              process.env.NEXT_PUBLIC_CONSUMER_GAS_PRICE ?? "0.25", 
-              process.env. NEXT_PUBLIC_CONSUMER_DECIMALS ? Number(process.env.NEXT_PUBLIC_CONSUMER_DECIMALS) : 6
-          ) }
-        }
+            process.env.NEXT_PUBLIC_CONSUMER_GAS_PRICE ?? "0.25",
+            process.env.NEXT_PUBLIC_CONSUMER_DECIMALS
+              ? Number(process.env.NEXT_PUBLIC_CONSUMER_DECIMALS)
+              : 6
+          ),
+        },
+      }
     );
     setKeplrAddress(keplrAddress);
     setCosmosjs(consumerClient);
     setOfflineSigner(keplrOfflineSigner);
-    
+
     const firstChainId = typeof chainId === "string" ? chainId : chainId![0];
-    setChainId(firstChainId)
-    // setToken(firstChainId);
-    console.log(consumerClient)
+    setChainId(firstChainId);
+    console.log(consumerClient);
   }
 
   async function connectWallet(chainId?: string | string[]) {
     try {
-      if (!(window as any).keplr) {
+      if (typeof window === "undefined" || !(window as any).keplr) {
         console.log("Install Keplr!");
       } else {
         await setupKeplr(chainId);
@@ -125,7 +123,6 @@ console.log(keplrAddress)
       alert("An error occurred while connecting to the wallet. Please try again.");
     }
   }
-
 
   function disconnectWallet() {
     setKeplrAddress("");

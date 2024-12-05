@@ -10,8 +10,6 @@ import EncryptionCase from "@/cases/Encrypted";
 import VotingCase from "@/cases/Voting";
 import AuctionsCase from "@/cases/Auctions";
 
-
-
 export default function Home() {
   const context = useContext(CosmosjsContext);
   const [appCase, setCase] = useState<AppCase>("EncryptedData");

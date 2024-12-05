@@ -46,11 +46,11 @@ const rpcFromChainId = (chainId: string | string[]) => {
 const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => {
   const [cosmosjs, setCosmosjs] = useState<SigningStargateClient | null>(null);
   const [keplrAddress, setKeplrAddress] = useState<string>("");
-  const [offlineSigner, setOfflineSigner] = useState<any>(null);  // Change this type to any since it's from window
+  const [offlineSigner, setOfflineSigner] = useState<any>(null); 
   const [chainId, setChainId] = useState<string>(process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID!);
-
   const token = tokenFromChainId(chainId);
 
+  // Ensure code runs on client-side
   useEffect(() => {
     const autoConnect = localStorage.getItem("keplrAutoConnect");
     if (autoConnect === "true") {
@@ -58,9 +58,8 @@ const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => 
     }
   }, [chainId]);
 
-  // Make sure this code only runs on the client-side
   async function setupKeplr(chainId: string | string[] = process.env.NEXT_PUBLIC_CONSUMER_CHAIN_ID ?? "") {
-    // Make sure window is available before using it
+    // Check if the window object is available (client-side only)
     if (typeof window === "undefined") {
       console.error("Window is not defined. This must be run in a client-side context.");
       return;

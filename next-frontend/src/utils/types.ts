@@ -1,3 +1,6 @@
+"use client";
+
+
 export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
 
 export type Proposal = {

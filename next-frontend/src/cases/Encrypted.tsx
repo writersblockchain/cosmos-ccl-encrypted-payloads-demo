@@ -6,16 +6,12 @@ import EncryptModal from "@/components/Encrypt";
 import QuerySecretModal from "@/components/QuerySecret";
 import { Connector } from "@/components/Connector";
 
-// export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
-
-
 export const EncryptionCase = () => {
 
   const context = useContext(CosmosjsContext);
   if (!context) {
     return null; // Handle the case when context is null
   }
-
 
   return (
       <>

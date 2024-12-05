@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useContext, useEffect, useState } from 'react';
 import { QueryGateway } from "../functions/Gateway";
 import { CosmosjsContext } from '@/utils/CosmosContext';

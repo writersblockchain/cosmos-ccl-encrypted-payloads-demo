@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useContext, useEffect, useState } from 'react';
 import { ExecuteGateway, QueryGateway } from "../functions/Gateway";
 import { Proposal } from '@/utils/types';

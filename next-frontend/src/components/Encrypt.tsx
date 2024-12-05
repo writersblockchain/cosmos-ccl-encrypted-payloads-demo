@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { ExecuteGateway } from "../functions/Gateway";
 import { loadContractMultiConfig } from '@/ccl-sdk/config';

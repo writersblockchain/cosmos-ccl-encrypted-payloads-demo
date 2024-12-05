@@ -9,8 +9,6 @@ import { Contract, CosmosCredential, DataToSign } from '@/ccl-sdk/types';
 import { Random } from '@cosmjs/crypto';
 import { Proposal } from '@/utils/types';
 
-
-
 const ExecuteGateway = () => {
   const context = useContext(CosmosjsContext);
 
@@ -29,7 +27,6 @@ const ExecuteGateway = () => {
   };
 
   const keplrOfflineSigner = (window as any).getOfflineSigner(chainId);
-
 
   const execute_gateway_contract = async (
     contract: Contract,

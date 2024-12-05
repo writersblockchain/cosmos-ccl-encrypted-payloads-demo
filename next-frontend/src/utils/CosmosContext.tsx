@@ -5,8 +5,6 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import { SigningStargateClient } from "@cosmjs/stargate"
 import { Decimal } from "@cosmjs/math";
 
-
-
 interface CosmosjsContextProps {
   cosmosjs: SigningStargateClient| null;
   chainId: string;
@@ -90,7 +88,7 @@ const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => 
  let keplrOfflineSigner = (window as any).getOfflineSignerOnlyAmino(chainId);
     const accounts = await keplrOfflineSigner.getAccounts();
  let keplrAddress = accounts[0].address;
-// console.log(keplrAddress)
+console.log(keplrAddress)
   
 
     let consumerClient = await SigningStargateClient.connectWithSigner(
@@ -110,7 +108,7 @@ const CosmosjsContextProvider = ({ children }: CosmosjsContextProviderProps) => 
     
     const firstChainId = typeof chainId === "string" ? chainId : chainId![0];
     setChainId(firstChainId)
-    //setToken(firstChainId);
+    // setToken(firstChainId);
     console.log(consumerClient)
   }
 

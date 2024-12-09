@@ -3,10 +3,7 @@
 import { useContext } from "react";
 import { CosmosjsContext } from "../utils/CosmosContext";
 import { Connector } from "@/components/Connector";
-import QuerySecretModal from "@/components/QuerySecret";
-import ProposalstModal from "@/components/Proposals";
-
-// export type AppCase = "EncryptedData" | "ConfVoting" | "SealedBids"
+import ProposalsModal from "@/components/Proposals";
 
 export const VotingCase = () => {
 
@@ -31,7 +28,7 @@ export const VotingCase = () => {
         </h6>
         <div className="mt-5 sm:mx-auto w-full sm:max-w-sm">
           <Connector />
-          <ProposalstModal />
+          <ProposalsModal />
         </div>
     </>
   );

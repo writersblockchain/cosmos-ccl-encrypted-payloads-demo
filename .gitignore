@@ -2,6 +2,7 @@
 **/node_modules/
 **/target/
 **/optimized-wasm/
+**/dist
 
 # Ignore specific files at any level
 **/contract.wasm

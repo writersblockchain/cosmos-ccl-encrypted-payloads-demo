@@ -3,7 +3,8 @@ import * as fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 const wallet = new Wallet(process.env.SECRET_MNEMONIC);
-const contract_wasm = fs.readFileSync("./target/wasm32-unknown-unknown/release/gateway_simple.wasm");
+const contract_wasm = fs.readFileSync("../deploy-scripts/optimized-wasm/secret_voting.wasm.gz");
+
 const secretjs = new SecretNetworkClient({
     chainId: "pulsar-3",
     url: "https://lcd.testnet.secretsaturn.net",

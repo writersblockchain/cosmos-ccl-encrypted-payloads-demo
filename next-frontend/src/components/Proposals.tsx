@@ -24,7 +24,6 @@ const ProposalstModal = () => {
     
     const [secretBlock, setSecretBlock] = useState<{ height: number, time: string}>({ height: 0, time: "" });
 
-
     const { create_proposal, vote_proposal } = ExecuteGateway();
     const { query_proposals, query_my_vote } = QueryGateway();
 
